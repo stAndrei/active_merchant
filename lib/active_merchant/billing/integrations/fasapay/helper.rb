@@ -13,7 +13,7 @@ module ActiveMerchant #:nodoc:
           mapping :success_method, 'fp_success_method'
           mapping :fail_url, 'fp_fail_url'
           mapping :fail_method, 'fp_fail_method'
-          mapping :order_id, 'fp_merchant_ref'
+          mapping :order, 'fp_merchant_ref'
         end
       end
     end

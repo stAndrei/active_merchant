@@ -28,7 +28,7 @@ module ActiveMerchant #:nodoc:
           alias_method :description, :fp_item
           alias_method :account_name, :fp_store
           alias_method :received_at, :fp_timestamp
-          alias_method :order_id, :fp_merchant_ref
+          alias_method :order, :fp_merchant_ref
 
         end
       end

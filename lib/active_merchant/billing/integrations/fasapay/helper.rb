@@ -3,6 +3,13 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module Fasapay
         class Helper < ActiveMerchant::Billing::Integrations::Helper
+          def generate_signature_string
+            "#{params['fp_paidto']}:#{params['fp_paidby']}:#{params['fp_store']}:#{params['fp_amnt']}:#{params['fp_batchnumber']}:#{params['fp_currency']}:#{secret}"
+          end
+
+          def generate_signature
+            Digest::SHA256.hexdigest(generate_signature_string).upcase
+          end
           mapping :account, 'fp_acc'
           mapping :amount, 'fp_amnt'
           mapping :account_name, 'fp_store'

@@ -29,6 +29,44 @@ module ActiveMerchant #:nodoc:
           alias_method :account_name, :fp_store
           alias_method :received_at, :fp_timestamp
           alias_method :order, :fp_merchant_ref
+          alias_method :number, :fp_batchnumber
+
+          def security_key
+            params["fp_hash"]
+          end
+
+          def item_id
+            params['fp_merchant_ref']
+          end
+
+          def secret
+            @options[:secret]
+          end
+
+          def acknowledge
+            (security_key == generate_signature)
+          end
+
+          def generate_signature_string
+            string = [
+                account,
+                payer,
+                account_name,
+                amount,
+                number,
+                currency,
+                @options[:secret]
+              ].join ':'
+          end
+
+          # def generate_signature_string
+          #   "#{params['fp_paidto']}:#{params['fp_paidby']}:#{params['fp_store']}:#{params['fp_amnt']}:#{params['fp_batchnumber']}:#{params['fp_currency']}:#{secret}"
+          # end
+
+          def generate_signature
+            Digest::SHA256.hexdigest(generate_signature_string).downcase
+          end
+
 
         end
       end

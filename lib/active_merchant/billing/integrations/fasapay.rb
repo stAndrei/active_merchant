@@ -8,6 +8,9 @@ module ActiveMerchant #:nodoc:
         mattr_accessor :service_url
         self.service_url = 'https://sci.fasapay.com'
 
+        mattr_accessor :signature_parameter_name
+        self.signature_parameter_name = 'fp_hash'
+
         def self.helper(order, account, options = {})
           Helper.new(order, account, options)
         end

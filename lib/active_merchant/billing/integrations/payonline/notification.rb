@@ -22,6 +22,9 @@ module ActiveMerchant #:nodoc:
             define_method(param_name.underscore){ params[param_name] }
           end
 
+          alias_method :item_id, :order_id
+          alias_method :received_at, :date_time
+
           def generate_signature_string
             string = %w(DateTime TransactionID OrderId Amount Currency).map {|k| "#{k}=#{params[k]}"}.join("&")
             string += "&PrivateSecurityKey=" + @options[:secret]

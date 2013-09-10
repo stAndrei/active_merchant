@@ -9,6 +9,7 @@ module ActiveMerchant #:nodoc:
           mapping :order, 'OrderId'
           mapping :return_url, 'ReturnUrl'
           mapping :fail_url, 'FailUrl'
+          mapping :security_key, 'SecurityKey'
         end
       end
     end

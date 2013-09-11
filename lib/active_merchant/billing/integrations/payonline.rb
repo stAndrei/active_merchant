@@ -15,8 +15,8 @@ module ActiveMerchant #:nodoc:
           Helper.new(order, account, options)
         end
 
-        def self.notification(query_string, options = {})
-          Notification.new(query_string, options)
+        def self.notification(*args)
+          Notification.new(*args)
         end
 
       end

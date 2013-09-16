@@ -16,6 +16,7 @@ module ActiveMerchant #:nodoc:
             fp_store
             fp_timestamp
             fp_merchant_ref
+            fp_hash
           ).each do |param_name|
             define_method(param_name.underscore){ params[param_name] }
           end
@@ -29,22 +30,12 @@ module ActiveMerchant #:nodoc:
           alias_method :account_name, :fp_store
           alias_method :received_at, :fp_timestamp
           alias_method :order, :fp_merchant_ref
+          alias_method :item_id, :fp_merchant_ref
           alias_method :number, :fp_batchnumber
-
-          def security_key
-            params["fp_hash"]
-          end
-
-          def item_id
-            params['fp_merchant_ref']
-          end
-
-          def secret
-            @options[:secret]
-          end
+          alias_method :hash, :fp_hash
 
           def acknowledge
-            security_key == generate_signature
+            hash == generate_signature
           end
 
           def generate_signature_string

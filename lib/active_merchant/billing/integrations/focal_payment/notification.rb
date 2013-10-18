@@ -3,7 +3,7 @@ require 'net/http'
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     module Integrations #:nodoc:
-      module Fasapay
+      module FocalPayment
         class Notification < ActiveMerchant::Billing::Integrations::Notification
           %w(TransID
             TransRef
@@ -12,23 +12,36 @@ module ActiveMerchant #:nodoc:
             Status
             Message
             Email
-            Key
+            Merchant
+            TransRef
+            Product
+            AttemptMode
             Test
-            RebillId
+            TestTrans
+            Site
+            PaymentType
+            customer[email]
             ).each do |param_name|
-              define_method(param_name.underscore){ params[param_name] }
+              define_method(param_name){ params[param_name] }
             end
 
-            alias_method :key, :Key
-            alias_method :payment, :RebillId
             alias_method :amount, :Amount
+            alias_method :account, :Merchant
+            alias_method :site, :Site
+            alias_method :currency, :Currency
+            alias_method :order, :TransRef
+            alias_method :product, :Product
+            alias_method :payment_type, :PaymentType
+            alias_method :attempt_mode, :AttemptMode
+            alias_method :test, :TestTrans
+            alias_method :email, 'customer[email]'
 
             def security_key
               params["Key"]
             end
 
             def item_id
-              params['RebillId']
+              params['TransRef']
             end
 
           def acknowledge

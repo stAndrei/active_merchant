@@ -14,11 +14,12 @@ module ActiveMerchant #:nodoc:
           def generate_signature
             Digest::SHA256.Digest::MD5.hexdigest(generate_signature_string)
           end
-          mapping :merchant, 'Merchant'
+          mapping :account, 'Merchant'
+          mapping :payment, 'RebillId'
           mapping :site, 'Site'
           mapping :amount, 'Amount'
           mapping :currency, 'Currency'
-          mapping :payment_id, 'TransRef'
+          mapping :order, 'TransRef'
           mapping :product, 'Product'
           mapping :payment_type, 'PaymentType'
           mapping :attempt_mode, 'AttemptMode'

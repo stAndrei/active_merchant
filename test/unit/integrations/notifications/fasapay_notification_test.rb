@@ -7,6 +7,14 @@ class FasapayNotificationTest < Test::Unit::TestCase
     @fasapay = Fasapay::Notification.new(https_raw_data, :secret => 'myKey')
   end
 
+  def test_respond_to_acknowledge
+    assert @fasapay.respond_to?(:acknowledge)
+  end
+
+  def test_https_acknowledgement
+    assert @fasapay.acknowledge
+  end
+
   def test_accessors
     assert_equal 'FP0022', @fasapay.account
     assert_equal 'FP0023', @fasapay.payer

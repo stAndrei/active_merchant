@@ -43,9 +43,9 @@ module ActiveMerchant #:nodoc:
               @options[:secret]
             end
 
-            def acknowledge
-              (security_key == generate_signature)
-            end
+          def acknowledge
+            security_key == generate_signature
+          end
 
             def generate_signature_string
               string = [
@@ -62,7 +62,6 @@ module ActiveMerchant #:nodoc:
             def generate_signature
               Digest::SHA256.hexdigest(generate_signature_string).downcase
             end
-
 
         end
       end

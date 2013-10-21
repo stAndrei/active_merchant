@@ -1,71 +1,85 @@
 require 'net/http'
-
+require 'digest/md5'
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     module Integrations #:nodoc:
       module FocalPayment
         class Notification < ActiveMerchant::Billing::Integrations::Notification
-          %w(TransID
+          %w(TransId
             TransRef
             Amount
             Currency
             Status
-            Message
-            Email
             Merchant
             TransRef
             Product
             AttemptMode
-            Test
             TestTrans
             Site
+            Key
             PaymentType
-            customer[email]
-            customer[first_name]
-            customer[last_name]
+
             ).each do |param_name|
-              define_method(param_name){ params[param_name] }
+              define_method(param_name.underscore){ params[param_name] }
             end
 
-            alias_method :amount, :Amount
-            alias_method :transaction, 'TransId'
-            alias_method :account, :Merchant
-            alias_method :site, :Site
-            alias_method :currency, :Currency
-            alias_method :order, :TransRef
-            alias_method :product, :Product
-            alias_method :payment_type, :PaymentType
-            alias_method :attempt_mode, :AttemptMode
-            alias_method :test, :TestTrans
-            alias_method :email, 'customer[email]'
-            alias_method :first_name, 'customer[first_name]'
-            alias_method :last_name, 'customer[last_name]'
+          alias_method :account, :merchant
+          alias_method :order, :trans_ref
 
-            def secret
-              @options[:secret]
-            end
+          def secret
+            @options[:secret]
+          end
 
-            def security_key
-              params["Key"]
-            end
+          def email
+            params['customer']['email']
+          end
 
-            def item_id
-              params['TransRef']
-            end
+          def first_name
+            params['customer']['first_name']
+          end
+
+          def last_name
+            params['customer']['last_name']
+          end
+
+          def security_key
+            params["Key"]
+          end
+
+          def item_id
+            params['TransRef']
+          end
+
+          def status_to_string
+            {
+              '1' => 'Authed',
+              '2' => 'Captured',
+              '4' => 'Blocked',
+              '5' => 'Cancelled',
+              '6' => 'Voided',
+              '7' => 'Returned',
+              '8' => 'Chargeback',
+              '9' => 'Represented',
+              '13' => 'Refunded',
+              '16' => 'Sale'
+            }[status]
+          end
+
 
           def acknowledge
-            security_key == generate_signature
+            security_key == generate_signature && status_to_string == 'Sale'
           end
 
           def generate_signature_string
             string = [
-                key,
-                transaction,
+                secret,
+                trans_id,
                 amount
-              ].join '.'
+              ].join
           end
+
           def generate_signature
-            Digest::SHA256.Digest::MD5.hexdigest(generate_signature_string)
+            Digest::MD5.hexdigest(generate_signature_string)
           end
 
         end

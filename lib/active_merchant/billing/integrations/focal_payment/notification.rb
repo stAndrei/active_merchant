@@ -14,6 +14,7 @@ module ActiveMerchant #:nodoc:
             TransRef
             Product
             AttemptMode
+            Test
             TestTrans
             Site
             Key
@@ -67,7 +68,7 @@ module ActiveMerchant #:nodoc:
 
 
           def acknowledge
-            security_key == generate_signature && status_to_string == 'Sale'
+            security_key == generate_signature && status_to_string == 'Sale' && test == 'false'
           end
 
           def generate_signature_string

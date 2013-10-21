@@ -4,19 +4,15 @@ module ActiveMerchant #:nodoc:
       module FocalPayment
         class Helper < ActiveMerchant::Billing::Integrations::Helper
           def generate_signature_string
-            string = [
-                key,
-                payment,
-                amount
-              ].join '.'
+            string = "#{@options[:secret]}#{transaction}#{amount}"
           end
 
           def generate_signature
             Digest::SHA256.Digest::MD5.hexdigest(generate_signature_string)
           end
           mapping :account, 'Merchant'
-          mapping :payment, 'RebillId'
           mapping :site, 'Site'
+          mapping :transaction, 'TransId'
           mapping :amount, 'Amount'
           mapping :currency, 'Currency'
           mapping :order, 'TransRef'

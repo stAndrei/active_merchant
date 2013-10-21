@@ -28,6 +28,7 @@ module ActiveMerchant #:nodoc:
             end
 
             alias_method :amount, :Amount
+            alias_method :transaction, 'TransId'
             alias_method :account, :Merchant
             alias_method :site, :Site
             alias_method :currency, :Currency
@@ -39,6 +40,10 @@ module ActiveMerchant #:nodoc:
             alias_method :email, 'customer[email]'
             alias_method :first_name, 'customer[first_name]'
             alias_method :last_name, 'customer[last_name]'
+
+            def secret
+              @options[:secret]
+            end
 
             def security_key
               params["Key"]
@@ -55,7 +60,7 @@ module ActiveMerchant #:nodoc:
           def generate_signature_string
             string = [
                 key,
-                payment,
+                transaction,
                 amount
               ].join '.'
           end

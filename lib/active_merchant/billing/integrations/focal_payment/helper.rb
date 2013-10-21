@@ -25,6 +25,8 @@ module ActiveMerchant #:nodoc:
           mapping :attempt_mode, 'AttemptMode'
           mapping :test, 'TestTrans'
           mapping :email, 'customer[email]'
+          mapping :first_name, 'customer[first_name]'
+          mapping :last_name, 'customer[last_name]'
         end
       end
     end

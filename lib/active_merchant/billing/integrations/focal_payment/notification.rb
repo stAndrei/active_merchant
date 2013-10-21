@@ -21,6 +21,8 @@ module ActiveMerchant #:nodoc:
             Site
             PaymentType
             customer[email]
+            customer[first_name]
+            customer[last_name]
             ).each do |param_name|
               define_method(param_name){ params[param_name] }
             end
@@ -35,6 +37,8 @@ module ActiveMerchant #:nodoc:
             alias_method :attempt_mode, :AttemptMode
             alias_method :test, :TestTrans
             alias_method :email, 'customer[email]'
+            alias_method :first_name, 'customer[first_name]'
+            alias_method :last_name, 'customer[last_name]'
 
             def security_key
               params["Key"]

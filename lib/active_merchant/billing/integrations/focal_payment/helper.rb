@@ -20,6 +20,7 @@ module ActiveMerchant #:nodoc:
           mapping :email, 'customer[email]'
           mapping :first_name, 'customer[first_name]'
           mapping :last_name, 'customer[last_name]'
+          mapping :country,  'customer[country]'
           mapping :amount, 'Amount'
           mapping :currency, 'Currency'
           mapping :site, 'Site'

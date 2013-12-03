@@ -19,7 +19,6 @@ module ActiveMerchant #:nodoc:
             Site
             Key
             PaymentType
-
             ).each do |param_name|
               define_method(param_name.underscore){ params[param_name] }
             end
@@ -68,7 +67,7 @@ module ActiveMerchant #:nodoc:
 
 
           def acknowledge
-            security_key == generate_signature && status_to_string == 'Sale' && test == 'false'
+            security_key == generate_signature && status_to_string == 'Sale'
           end
 
           def generate_signature_string

@@ -21,7 +21,7 @@ module ActiveMerchant #:nodoc:
         'unchecked' => 'P'
       }
 
-      self.supported_countries = ['US', 'CA', 'GB']
+      self.supported_countries = %w(US CA GB AU IE FR NL BE DE ES)
       self.default_currency = 'USD'
       self.money_format = :cents
       self.supported_cardtypes = [:visa, :master, :american_express, :discover, :jcb, :diners_club]
@@ -40,7 +40,7 @@ module ActiveMerchant #:nodoc:
         post = create_post_for_auth_or_purchase(money, creditcard, options)
         post[:capture] = "false"
 
-        commit(:post, 'charges', post, generate_meta(options))
+        commit(:post, 'charges', post, generate_options(options))
       end
 
       # To create a charge on a card or a token, call
@@ -53,7 +53,7 @@ module ActiveMerchant #:nodoc:
       def purchase(money, creditcard, options = {})
         post = create_post_for_auth_or_purchase(money, creditcard, options)
 
-        commit(:post, 'charges', post, generate_meta(options))
+        commit(:post, 'charges', post, generate_options(options))
       end
 
       def capture(money, authorization, options = {})
@@ -69,7 +69,7 @@ module ActiveMerchant #:nodoc:
 
       def refund(money, identification, options = {})
         post = {:amount => amount(money)}
-        commit_options = generate_meta(options)
+        commit_options = generate_options(options)
 
         MultiResponse.run(:first) do |r|
           r.process { commit(:post, "charges/#{CGI.escape(identification)}/refund", post, commit_options) }
@@ -97,28 +97,42 @@ module ActiveMerchant #:nodoc:
         commit(:post, "application_fees/#{CGI.escape(identification)}/refund", post, options)
       end
 
+      # Note: creating a new credit card will not change the customer's existing default credit card (use :set_default => true)
       def store(creditcard, options = {})
         post = {}
         add_creditcard(post, creditcard, options)
         post[:description] = options[:description]
         post[:email] = options[:email]
 
-        path = if options[:customer]
-          "customers/#{CGI.escape(options[:customer])}"
-        else
-          'customers'
-        end
+        commit_options = generate_options(options)
+        if options[:customer]
+          MultiResponse.run(:first) do |r|
+            r.process { commit(:post, "customers/#{CGI.escape(options[:customer])}/cards", post, commit_options) }
 
-        commit(:post, path, post, generate_meta(options))
+            return r unless options[:set_default] and r.success? and !r.params["id"].blank?
+
+            r.process { update_customer(options[:customer], :default_card => r.params["id"]) }
+          end
+        else
+          commit(:post, 'customers', post, commit_options)
+        end
       end
 
       def update(customer_id, creditcard, options = {})
-        options = options.merge(:customer => customer_id)
+        options = options.merge(:customer => customer_id, :set_default => true)
         store(creditcard, options)
       end
 
-      def unstore(customer_id, options = {})
-        commit(:delete, "customers/#{CGI.escape(customer_id)}", nil, generate_meta(options))
+      def update_customer(customer_id, options = {})
+        commit(:post, "customers/#{CGI.escape(customer_id)}", options, generate_options(options))
+      end
+
+      def unstore(customer_id, card_id = nil, options = {})
+        if card_id.nil?
+          commit(:delete, "customers/#{CGI.escape(customer_id)}", nil, generate_options(options))
+        else
+          commit(:delete, "customers/#{CGI.escape(customer_id)}/cards/#{CGI.escape(card_id)}", nil, generate_options(options))
+        end
       end
 
       private
@@ -127,7 +141,7 @@ module ActiveMerchant #:nodoc:
         post = {}
         add_amount(post, money, options)
         add_creditcard(post, creditcard, options)
-        add_customer(post, options)
+        add_customer(post, creditcard, options)
         add_customer_data(post,options)
         post[:description] = options[:description] || options[:email]
         add_flags(post, options)
@@ -145,7 +159,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def add_customer_data(post, options)
-        metadata_options = [:description,:browser_ip,:user_agent,:referrer]
+        metadata_options = [:description, :ip, :user_agent, :referrer]
         post.update(options.slice(*metadata_options))
 
         post[:external_id] = options[:order_id]
@@ -183,14 +197,14 @@ module ActiveMerchant #:nodoc:
           if options[:track_data]
             card[:swipe_data] = options[:track_data]
           else
-            card[:number] = creditcard
+            card = creditcard
           end
           post[:card] = card
         end
       end
 
-      def add_customer(post, options)
-        post[:customer] = options[:customer] if options[:customer] && post[:card].blank?
+      def add_customer(post, creditcard, options)
+        post[:customer] = options[:customer] if options[:customer] && !creditcard.respond_to?(:number)
       end
 
       def add_flags(post, options)
@@ -224,6 +238,11 @@ module ActiveMerchant #:nodoc:
         end.compact.join("&")
       end
 
+      def generate_options(raw_options)
+        options = generate_meta(raw_options)
+        options.merge!(raw_options.slice(:version, :key))
+      end
+
       def generate_meta(options)
         {:meta => {:ip => options[:ip]}}
       end
@@ -234,18 +253,19 @@ module ActiveMerchant #:nodoc:
           :lang => 'ruby',
           :lang_version => "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})",
           :platform => RUBY_PLATFORM,
-          :publisher => 'active_merchant',
-          :uname => (RUBY_PLATFORM =~ /linux|darwin/i ? `uname -a 2>/dev/null`.strip : nil)
+          :publisher => 'active_merchant'
         })
 
         key = options[:key] || @api_key
 
-        {
+        headers = {
           "Authorization" => "Basic " + Base64.encode64(key.to_s + ":").strip,
           "User-Agent" => "Stripe/v1 ActiveMerchantBindings/#{ActiveMerchant::VERSION}",
           "X-Stripe-Client-User-Agent" => @@ua,
           "X-Stripe-Client-User-Metadata" => options[:meta].to_json
         }
+        headers.merge!("Stripe-Version" => options[:version]) if options[:version]
+        headers
       end
 
       def commit(method, url, parameters=nil, options = {})

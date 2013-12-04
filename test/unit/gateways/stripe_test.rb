@@ -16,6 +16,42 @@ class StripeTest < Test::Unit::TestCase
     }
   end
 
+  def test_successful_new_customer_with_card
+    @gateway.expects(:ssl_request).returns(successful_new_customer_response)
+
+    assert response = @gateway.store(@credit_card, @options)
+    assert_instance_of Response, response
+    assert_success response
+
+    assert_equal 'cus_3sgheFxeBgTQ3M', response.authorization
+    assert response.test?
+  end
+
+  def test_successful_new_card
+    @gateway.expects(:ssl_request).returns(successful_new_card_response)
+
+    assert response = @gateway.store(@credit_card, @options.merge(:customer => 'cus_3sgheFxeBgTQ3M'))
+    assert_instance_of MultiResponse, response
+    assert_success response
+
+    assert_equal 'card_483etw4er9fg4vF3sQdrt3FG', response.authorization
+    assert response.test?
+  end
+
+  def test_successful_new_default_card
+    @gateway.expects(:ssl_request).twice.returns(successful_new_card_response, successful_new_customer_response)
+
+    assert response = @gateway.store(@credit_card, @options.merge(:customer => 'cus_3sgheFxeBgTQ3M', :set_default => true))
+    assert_instance_of MultiResponse, response
+    assert_success response
+
+    assert_equal 'card_483etw4er9fg4vF3sQdrt3FG', response.authorization
+    assert_equal 2, response.responses.size
+    assert_equal 'card_483etw4er9fg4vF3sQdrt3FG', response.responses[0].authorization
+    assert_equal 'cus_3sgheFxeBgTQ3M', response.responses[1].authorization
+    assert response.test?
+  end
+
   def test_successful_authorization
     @gateway.expects(:ssl_request).returns(successful_authorization_response)
 
@@ -45,6 +81,18 @@ class StripeTest < Test::Unit::TestCase
     # Replace with authorization number from the successful response
     assert_equal 'ch_test_charge', response.authorization
     assert response.test?
+  end
+
+  def test_successful_purchase_with_token
+    response = stub_comms(@gateway, :ssl_request) do
+      @gateway.purchase(@amount, "tok_xxx")
+    end.check_request do |method, endpoint, data, headers|
+      assert_match(/card=tok_xxx/, data)
+    end.respond_with(successful_purchase_response)
+
+    assert response
+    assert_instance_of Response, response
+    assert_success response
   end
 
   def test_successful_void
@@ -144,20 +192,50 @@ class StripeTest < Test::Unit::TestCase
     assert_match(/^Invalid response received from the Stripe API/, response.message)
   end
 
+  def test_add_creditcard_with_credit_card
+    post = {}
+    @gateway.send(:add_creditcard, post, @credit_card, {})
+    assert_equal @credit_card.number, post[:card][:number]
+    assert_equal @credit_card.month, post[:card][:exp_month]
+    assert_equal @credit_card.year, post[:card][:exp_year]
+    assert_equal @credit_card.verification_value, post[:card][:cvc]
+    assert_equal @credit_card.name, post[:card][:name]
+  end
+
+  def test_add_creditcard_with_track_data
+    post = {}
+    @credit_card.stubs(:track_data).returns("Tracking data")
+    @gateway.send(:add_creditcard, post, @credit_card, {})
+    assert_equal @credit_card.track_data, post[:card][:swipe_data]
+    assert_nil post[:card][:number]
+    assert_nil post[:card][:exp_year]
+    assert_nil post[:card][:exp_month]
+    assert_nil post[:card][:cvc]
+    assert_nil post[:card][:name]
+  end
+
+  def test_add_creditcard_with_token
+    post = {}
+    credit_card_token = "card_2iD4AezYnNNzkW"
+    @gateway.send(:add_creditcard, post, credit_card_token, {})
+    assert_equal credit_card_token, post[:card]
+  end
+
+  def test_add_creditcard_with_token_and_track_data
+    post = {}
+    credit_card_token = "card_2iD4AezYnNNzkW"
+    @gateway.send(:add_creditcard, post, credit_card_token, :track_data => "Tracking data")
+    assert_equal "Tracking data", post[:card][:swipe_data]
+  end
+
   def test_add_customer
     post = {}
-    @gateway.send(:add_customer, post, {:customer => "test_customer"})
+    @gateway.send(:add_customer, post, @creditcard, {:customer => "test_customer"})
     assert_equal "test_customer", post[:customer]
   end
 
-  def test_doesnt_add_customer_if_card
-    post = { :card => 'foo' }
-    @gateway.send(:add_customer, post, {:customer => "test_customer"})
-    assert !post[:customer]
-  end
-
   def test_application_fee_is_submitted_for_purchase
-    stub_comms(:ssl_request) do
+    stub_comms(@gateway, :ssl_request) do
       @gateway.purchase(@amount, @credit_card, @options.merge({:application_fee => 144}))
     end.check_request do |method, endpoint, data, headers|
       assert_match(/application_fee=144/, data)
@@ -165,7 +243,7 @@ class StripeTest < Test::Unit::TestCase
   end
 
   def test_application_fee_is_submitted_for_capture
-    stub_comms(:ssl_request) do
+    stub_comms(@gateway, :ssl_request) do
       @gateway.capture(@amount, "ch_test_charge", @options.merge({:application_fee => 144}))
     end.check_request do |method, endpoint, data, headers|
       assert_match(/application_fee=144/, data)
@@ -173,8 +251,8 @@ class StripeTest < Test::Unit::TestCase
   end
 
   def test_client_data_submitted_with_purchase
-    stub_comms(:ssl_request) do
-      updated_options = @options.merge({:description => "a test customer",:browser_ip => "127.127.127.127", :user_agent => "some browser", :order_id => "42", :email => "foo@wonderfullyfakedomain.com", :referrer =>"http://www.shopify.com"})
+    stub_comms(@gateway, :ssl_request) do
+      updated_options = @options.merge({:description => "a test customer",:ip => "127.127.127.127", :user_agent => "some browser", :order_id => "42", :email => "foo@wonderfullyfakedomain.com", :referrer =>"http://www.shopify.com"})
       @gateway.purchase(@amount,@credit_card,updated_options)
     end.check_request do |method, endpoint, data, headers|
       assert_match(/description=a\+test\+customer/, data)
@@ -215,15 +293,23 @@ class StripeTest < Test::Unit::TestCase
     @gateway.purchase(@amount, @credit_card, @options.merge(:ip => '1.1.1.1'))
   end
 
+  def test_optional_version_header
+    @gateway.expects(:ssl_request).once.with {|method, url, post, headers|
+      headers && headers['Stripe-Version'] == '2013-10-29'
+    }.returns(successful_purchase_response)
+
+    @gateway.purchase(@amount, @credit_card, @options.merge(:version => '2013-10-29'))
+  end
+
   def test_track_data_and_traditional_should_be_mutually_exclusive
-    stub_comms(:ssl_request) do
+    stub_comms(@gateway, :ssl_request) do
       @gateway.purchase(@amount, @credit_card, @options)
     end.check_request do |method, endpoint, data, headers|
       assert data =~ /card\[name\]/
       assert data !~ /card\[swipe_data\]/
     end.respond_with(successful_purchase_response)
 
-    stub_comms(:ssl_request) do
+    stub_comms(@gateway, :ssl_request) do
       @credit_card.track_data = '%B378282246310005^LONGSON/LONGBOB^1705101130504392?'
       @gateway.purchase(@amount, @credit_card, @options)
     end.check_request do |method, endpoint, data, headers|
@@ -233,14 +319,95 @@ class StripeTest < Test::Unit::TestCase
   end
 
   def test_address_is_included_with_card_data
-    stub_comms(:ssl_request) do
+    stub_comms(@gateway, :ssl_request) do
       @gateway.purchase(@amount, @credit_card, @options)
     end.check_request do |method, endpoint, data, headers|
       assert data =~ /card\[address_line1\]/
     end.respond_with(successful_purchase_response)
   end
 
+  def generate_options_should_allow_key
+    assert_equal({:key => '12345'}, generate_options({:key => '12345'}))
+  end
+
   private
+
+  # Create new customer and set default credit card
+  def successful_new_customer_response
+    <<-RESPONSE
+{
+  "object": "customer",
+  "created": 1383137317,
+  "id": "cus_3sgheFxeBgTQ3M",
+  "livemode": false,
+  "description": null,
+  "email": null,
+  "delinquent": false,
+  "metadata": {},
+  "subscription": null,
+  "discount": null,
+  "account_balance": 0,
+  "cards":
+  {
+    "object": "list",
+    "count": 1,
+    "url": "/v1/customers/cus_3sgheFxeBgTQ3M/cards",
+    "data":
+    [
+      {
+        "id": "card_483etw4er9fg4vF3sQdrt3FG",
+        "object": "card",
+        "last4": "4242",
+        "type": "Visa",
+        "exp_month": 11,
+        "exp_year": 2020,
+        "fingerprint": "5dgRQ3dVRGaQWDFb",
+        "customer": "cus_3sgheFxeBgTQ3M",
+        "country": "US",
+        "name": "John Doe",
+        "address_line1": null,
+        "address_line2": null,
+        "address_city": null,
+        "address_state": null,
+        "address_zip": null,
+        "address_country": null,
+        "cvc_check": null,
+        "address_line1_check": null,
+        "address_zip_check": null
+      }
+    ]
+  },
+  "default_card": "card_483etw4er9fg4vF3sQdrt3FG"
+}
+    RESPONSE
+  end
+
+  def successful_new_card_response
+    <<-RESPONSE
+{
+  "id": "card_483etw4er9fg4vF3sQdrt3FG",
+  "livemode": false,
+  "object": "card",
+  "last4": "4242",
+  "type": "Visa",
+  "exp_month": 11,
+  "exp_year": 2020,
+  "fingerprint": "5dgRQ3dVRGaQWDFb",
+  "customer": "cus_3sgheFxeBgTQ3M",
+  "country": "US",
+  "name": "John Doe",
+  "address_line1": null,
+  "address_line2": null,
+  "address_city": null,
+  "address_state": null,
+  "address_zip": null,
+  "address_country": null,
+  "cvc_check": null,
+  "address_line1_check": null,
+  "address_zip_check": null
+}
+    RESPONSE
+  end
 
   def successful_authorization_response
     <<-RESPONSE

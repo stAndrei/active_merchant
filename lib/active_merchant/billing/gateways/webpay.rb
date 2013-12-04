@@ -48,6 +48,10 @@ module ActiveMerchant #:nodoc:
         post[:amount] = localized_amount(money, post[:currency].upcase)
       end
 
+      def add_customer(post, creditcard, options)
+        post[:customer] = options[:customer] if options[:customer] && !creditcard.respond_to?(:number)
+      end
+
       def json_error(raw_response)
         msg = 'Invalid response received from the WebPay API.  Please contact support@webpay.jp if you continue to receive this message.'
         msg += "  (The raw response returned by the API was #{raw_response.inspect})"
@@ -64,8 +68,7 @@ module ActiveMerchant #:nodoc:
           :lang => 'ruby',
           :lang_version => "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})",
           :platform => RUBY_PLATFORM,
-          :publisher => 'active_merchant',
-          :uname => (RUBY_PLATFORM =~ /linux|darwin/i ? `uname -a 2>/dev/null`.strip : nil)
+          :publisher => 'active_merchant'
         })
 
         {

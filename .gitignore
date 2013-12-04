@@ -9,3 +9,5 @@ Gemfile*.lock
 
 #Sublime files
 *.sublime-*
+*.gem
+

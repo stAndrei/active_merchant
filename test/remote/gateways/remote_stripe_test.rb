@@ -4,17 +4,18 @@ class RemoteStripeTest < Test::Unit::TestCase
 
   def setup
     @gateway = StripeGateway.new(fixtures(:stripe))
+    @currency = fixtures(:stripe)["currency"]
 
     @amount = 100
+    # You may have to update the currency, depending on your tenant
     @credit_card = credit_card('4242424242424242')
     @declined_card = credit_card('4000')
     @new_credit_card = credit_card('5105105105105100')
 
     @options = {
-      :currency => 'CAD',
+      :currency => @currency,
       :description => 'ActiveMerchant Test Purchase',
-      :email => 'wow@example.com',
-      :currency => 'CAD'
+      :email => 'wow@example.com'
     }
   end
 
@@ -26,13 +27,13 @@ class RemoteStripeTest < Test::Unit::TestCase
   end
 
   def test_purchase_description
-    assert response = @gateway.purchase(@amount, @credit_card, { :currency => 'CAD', :description => "TheDescription", :email => "email@example.com" })
+    assert response = @gateway.purchase(@amount, @credit_card, { :currency => @currency, :description => "TheDescription", :email => "email@example.com" })
     assert_equal "TheDescription", response.params["description"], "Use the description if it's specified."
 
-    assert response = @gateway.purchase(@amount, @credit_card, { :currency => 'CAD', :email => "email@example.com" })
+    assert response = @gateway.purchase(@amount, @credit_card, { :currency => @currency, :email => "email@example.com" })
     assert_equal "email@example.com", response.params["description"], "Use the email if no description is specified."
 
-    assert response = @gateway.purchase(@amount, @credit_card, { :currency => 'CAD' })
+    assert response = @gateway.purchase(@amount, @credit_card, { :currency => @currency })
     assert_nil response.params["description"], "No description or email specified."
   end
 
@@ -89,27 +90,43 @@ class RemoteStripeTest < Test::Unit::TestCase
   end
 
   def test_successful_store
-    assert response = @gateway.store(@credit_card, {:currency => 'CAD', :description => "Active Merchant Test Customer", :email => "email@example.com"})
+    assert response = @gateway.store(@credit_card, {:currency => @currency, :description => "Active Merchant Test Customer", :email => "email@example.com"})
     assert_success response
     assert_equal "customer", response.params["object"]
     assert_equal "Active Merchant Test Customer", response.params["description"]
     assert_equal "email@example.com", response.params["email"]
-    assert_equal @credit_card.last_digits, response.params["active_card"]["last4"]
+    first_card = response.params["cards"]["data"].first
+    assert_equal response.params["default_card"], first_card["id"]
+    assert_equal @credit_card.last_digits, first_card["last4"]
   end
 
   def test_successful_update
     creation = @gateway.store(@credit_card, {:description => "Active Merchant Update Customer"})
     assert response = @gateway.update(creation.params['id'], @new_credit_card)
     assert_success response
-    assert_equal "Active Merchant Update Customer", response.params["description"]
-    assert_equal @new_credit_card.last_digits, response.params["active_card"]["last4"]
+    customer_response = response.responses.last
+    assert_equal "Active Merchant Update Customer", customer_response.params["description"]
+    first_card = customer_response.params["cards"]["data"].first
+    assert_equal customer_response.params["default_card"], first_card["id"]
+    assert_equal @new_credit_card.last_digits, first_card["last4"]
   end
 
   def test_successful_unstore
     creation = @gateway.store(@credit_card, {:description => "Active Merchant Unstore Customer"})
-    assert response = @gateway.unstore(creation.params['id'])
+    customer_id = creation.params['id']
+    card_id = creation.params['cards']['data'].first['id']
+
+    # Unstore the card
+    assert response = @gateway.unstore(customer_id, card_id)
     assert_success response
-    assert_equal true, response.params["deleted"]
+    assert_equal card_id, response.params['id']
+    assert_equal true, response.params['deleted']
+
+    # Unstore the customer
+    assert response = @gateway.unstore(customer_id)
+    assert_success response
+    assert_equal customer_id, response.params['id']
+    assert_equal true, response.params['deleted']
   end
 
   def test_successful_recurring
@@ -168,5 +185,12 @@ class RemoteStripeTest < Test::Unit::TestCase
     assert response.params['fee_details'], 'This test will only work if your gateway login is a Stripe Connect access_token.'
     assert refund = @gateway.refund(@amount - 20, response.authorization, { :refund_fee_amount => 10 })
     assert_success refund
+  end
+
+  def test_creditcard_purchase_with_customer
+    assert response = @gateway.purchase(@amount, @credit_card, @options.merge(:customer => '1234'))
+    assert_success response
+    assert_equal "charge", response.params["object"]
+    assert response.params["paid"]
   end
 end

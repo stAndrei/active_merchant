@@ -18,10 +18,21 @@ module ActiveMerchant #:nodoc:
       self.homepage_url = 'http://www.moneris.com/'
       self.display_name = 'Moneris'
 
-      # login is your Store ID
-      # password is your API Token
+      # Initialize the Gateway
+      #
+      # The gateway requires that a valid login and password be passed
+      # in the +options+ hash.
+      #
+      # ==== Options
+      #
+      # * <tt>:login</tt> -- Your Store ID
+      # * <tt>:password</tt> -- Your API Token
+      # * <tt>:cvv_enabled</tt> -- Specify that you would like the CVV passed to the gateway.
+      #                            Only particular account types at Moneris will allow this.
+      #                            Defaults to false.  (optional)
       def initialize(options = {})
         requires!(options, :login, :password)
+        @cvv_enabled = options[:cvv_enabled]
         options = { :crypt_type => 7 }.merge(options)
         super
       end
@@ -70,13 +81,28 @@ module ActiveMerchant #:nodoc:
         commit 'completion', crediting_params(authorization, :comp_amount => amount(money))
       end
 
-      # Voiding cancels an open authorization.
+      # Voiding requires the original transaction ID and order ID of some open
+      # transaction. Closed transactions must be refunded.
+      #
+      # Moneris supports the voiding of an unsettled capture or purchase via
+      # its <tt>purchasecorrection</tt> command. This action can only occur
+      # on the same day as the capture/purchase prior to 22:00-23:00 EST. If
+      # you want to do this, pass <tt>:purchasecorrection => true</tt> as
+      # an option.
+      #
+      # Fun, Historical Trivia:
+      # Voiding an authorization in Moneris is a relatively new feature
+      # (September, 2011). It is actually done by doing a $0 capture.
       #
       # Concatenate your transaction number and order_id by using a semicolon
       # (';'). This is to keep the Moneris interface consistent with other
       # gateways. (See +capture+ for details.)
       def void(authorization, options = {})
-        capture(0, authorization, options)
+        if options[:purchasecorrection]
+          commit 'purchasecorrection', crediting_params(authorization)
+        else
+          capture(0, authorization, options)
+        end
       end
 
       # Performs a refund. This method requires that the original transaction
@@ -152,7 +178,10 @@ module ActiveMerchant #:nodoc:
       end
 
       def commit(action, parameters = {})
-        response = parse(ssl_post(test? ? self.test_url : self.live_url, post_data(action, parameters)))
+        data = post_data(action, parameters)
+        url = test? ? self.test_url : self.live_url
+        raw = ssl_post(url, data)
+        response = parse(raw)
 
         Response.new(successful?(response), message_from(response[:message]), response,
           :test          => test?,
@@ -204,7 +233,7 @@ module ActiveMerchant #:nodoc:
 
         # Must add the elements in the correct order
         actions[action].each do |key|
-          if key == :cvd_info
+          if((key == :cvd_info) && @cvv_enabled)
             transaction.add_element(cvd_element(parameters[:cvd_value]))
           else
             transaction.add_element(key.to_s).text = parameters[key] unless parameters[key].blank?

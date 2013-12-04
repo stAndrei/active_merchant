@@ -3,6 +3,21 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module Fasapay
         class Helper < ActiveMerchant::Billing::Integrations::Helper
+          def generate_signature_string
+            string = [
+                account,
+                payer,
+                account_name,
+                amount,
+                number,
+                currency,
+                @options[:secret]
+              ].join ':'
+          end
+
+          def generate_signature
+            Digest::SHA256.hexdigest(generate_signature_string).downcase
+          end
 
           mapping :account, 'fp_acc'
           mapping :amount, 'fp_amnt'

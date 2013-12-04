@@ -5,6 +5,7 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module Fasapay
         class Notification < ActiveMerchant::Billing::Integrations::Notification
+
           %w(
             fp_paidto
             fp_paidby

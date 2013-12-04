@@ -15,6 +15,7 @@ module ActiveMerchant #:nodoc:
           mapping :status_url, 'ik_status_url'
           mapping :status_method, 'ik_status_method'
           mapping :order, 'ik_payment_id'
+
         end
       end
     end

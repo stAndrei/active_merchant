@@ -10,4 +10,5 @@ Gemfile*.lock
 #Sublime files
 *.sublime-*
 *.gem
+*.sublime-project
 

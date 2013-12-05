@@ -67,7 +67,7 @@ module ActiveMerchant #:nodoc:
 
 
           def acknowledge
-            security_key == generate_signature && status_to_string == ('Sale' || 'Authed')
+            security_key == generate_signature && status_to_string == ('Sale' || 'Authed') && test == 'false'
           end
 
           def generate_signature_string

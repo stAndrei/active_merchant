@@ -6,7 +6,7 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module Interkassa
         mattr_accessor :service_url
-        self.service_url = 'https://www.interkassa.com/lib/payment.php'
+        self.service_url = 'https://sci.interkassa.com/'
 
         def self.helper(order, account, options = {})
           Helper.new(order, account, options)

@@ -2,7 +2,8 @@
 	"folders":
 	[
 		{
-			"path": "/Users/Andrei/work/active_merchant"
+			"follow_symlinks": true,
+			"path": "/Users/linadmax/GitHub/active_merchant"
 		}
 	]
 }

@@ -5,7 +5,6 @@ module ActiveMerchant #:nodoc:
         class Helper < ActiveMerchant::Billing::Integrations::Helper
 
           mapping :account, 'ik_co_id'
-          mapping :shop_id, 'ik_shop_id'
           mapping :amount, 'ik_am'
           mapping :description, 'ik_desc'
         end

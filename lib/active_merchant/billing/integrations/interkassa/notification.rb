@@ -13,7 +13,6 @@ module ActiveMerchant #:nodoc:
             ik_pw_via
             ik_am
             ik_cur
-            ik_act
             ik_inv_id
             ik_co_prs_id
             ik_trn_id
@@ -33,7 +32,6 @@ module ActiveMerchant #:nodoc:
           alias_method :payment_system, :ik_pw_via
           alias_method :amount, :ik_am
           alias_method :currency, :ik_cur
-          alias_method :action, :ik_act
           alias_method :invoice_id, :ik_inv_id
           alias_method :checkout_purse_id, :ik_co_prs_id
           alias_method :transaction_id, :ik_trn_id
@@ -45,12 +43,11 @@ module ActiveMerchant #:nodoc:
           alias_method :signature, :ik_sign
 
           def acknowledge
-            hash == generate_signature
+            signature == generate_signature
           end
 
           def generate_signature_string
             string = [
-                action,
                 amount,
                 account,
                 checkout_purse_id,
@@ -64,7 +61,6 @@ module ActiveMerchant #:nodoc:
                 payment_nomber,
                 paysystem_price,
                 payment_system,
-                signature,
                 transaction_id,
                 @options[:secret]
               ].join ':'
@@ -73,7 +69,6 @@ module ActiveMerchant #:nodoc:
           def generate_signature
             Digest::MD5.base64digest(generate_signature_string)
           end
-
         end
       end
     end

@@ -9,7 +9,7 @@ module ActiveMerchant #:nodoc:
         autoload :Status, File.dirname(__FILE__) + '/dengionline/status.rb'
 
         mattr_accessor :service_url
-        self.service_url = 'http://www.onlinedengi.ru/wmpaycheck.php'
+        self.service_url = 'https://www.onlinedengi.ru/wmpaycheck.php'
 
         def self.helper(order, account, options = {})
           Helper.new(order, account, options)

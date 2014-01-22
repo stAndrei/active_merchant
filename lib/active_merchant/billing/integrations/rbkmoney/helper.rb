@@ -11,7 +11,7 @@ module ActiveMerchant #:nodoc:
 
           mapping :order, 'orderId'
 
-          mapping :customer, :email => 'user_email'
+          mapping :email, 'user_email'
 
           mapping :credential2, 'serviceName'
           mapping :credential3, 'successUrl'

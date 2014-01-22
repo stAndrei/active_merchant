@@ -50,26 +50,29 @@ module ActiveMerchant #:nodoc:
             end
           end
 
-          alias_method :client_id, :eshop_id
-          alias_method :item_id, :order_id
-          alias_method :transaction_id, :payment_id
-          alias_method :received_at, :payment_data
-          alias_method :payer_email, :user_email
-          alias_method :gross, :recipient_amount
+          alias_method :shop_id, :eshop_id
+          alias_method :payment_id, :order_id
+          alias_method :operation, :service_name
+          alias_method :shop_wallet, :eshop_account
+          alias_method :amount, :recipient_amount
           alias_method :currency, :recipient_currency
+          alias_method :operation_status, :payment_status
+          alias_method :payer_name, :user_name
+          alias_method :payer_email, :user_email
+          alias_method :received_at, :payment_data
 
           def acknowledge(authcode = nil)
             string = [
-              eshop_id,
-              order_id,
-              service_name,
-              eshop_account,
-              recipient_amount,
-              recipient_currency,
-              payment_status,
-              user_name,
-              user_email,
-              payment_data,
+              shop_id,
+              payment_id,
+              operation,
+              shop_wallet,
+              amount,
+              currency,
+              operation_status,
+              payer_name,
+              payer_email,
+              received_at,
               @options[:secret]
             ].join '::'
 

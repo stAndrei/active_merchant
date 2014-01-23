@@ -5,6 +5,7 @@ module ActiveMerchant #:nodoc:
         class Helper < ActiveMerchant::Billing::Integrations::Helper
           mapping :account, 'eshopId'
           mapping :amount, 'recipientAmount'
+          mapping :pay_method, 'preference'
 
           # NOTE: rbkmoney uses outdated currency code 'RUR'
           mapping :currency, 'recipientCurrency'

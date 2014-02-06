@@ -36,7 +36,7 @@ module ActiveMerchant #:nodoc:
           #“POST” – The payment status is sent to the PAYMENT URL in an HTML form using the POST method.
           #“GET” - The payment status is sent to the PAYMENT URL in an HTML form using the GET method.
           #“LINK” – When payment is made, a simple hypertext link is used to return to the PAYMENT_URL. This option allows merchants that are unable to host cgi's on their web site  to have a clean link back to their sites html pages (avoiding http 405 errors).
-          # PAYMENT_URL_METHOD
+          mapping :payment_url_method, 'PAYMENT_URL_METHOD'
 
           #The URL to which a form is submitted or to which a hypertext link is taken by the buyer’s browser upon an unsuccessful or cancelled PerfectMoney® payment to the merchant. This is the buyer’s alternate return path into the merchant’s shopping cart system when an PerfectMoney® payment cannot be made or is cancelled.
           #Note that this URL can be the same as that provided for PAYMENT_URL, since status is provided on the form in hidden text fields to distinguish between the two payment outcomes.
@@ -48,18 +48,18 @@ module ActiveMerchant #:nodoc:
           #“POST” – The unsuccessful status is sent to the NOPAYMENT URL in an HTML form using the POST method.
           #“GET” - The unsuccessful status is sent to the NOPAYMENT URL in an HTML form using the GET method.
           #“LINK” – upon an unsuccessful or cancelled PerfectMoney™ payment to the merchant, a simple hypertext link is used to pass control to the NOPAYMENT_URL. This option allows merchants that are unable to host cgi's on their web site  to have a clean link back to their sites html pages (avoiding http 405 errors).
-          # NOPAYMENT_URL_METHOD
+          mapping :nopayment_url_method, 'NOPAYMENT_URL_METHOD'
 
           #A space delimited list of hidden text field names used exclusively by the merchant for his own purposes. An example value is:
           #“KEY_CODE CUSTOMER_ID BATCH_NUM”. 
           #If the merchant requires no additional fields then the value of BAGGAGE_FIELDS should be set to an empty string (“”). The total number of characters in all baggage fields and names combined should not exceed 4000 bytes.
-          mapping :description, 'BAGGAGE_FIELDS'
+          mapping :baggage_fields, 'BAGGAGE_FIELDS'
 
           #(Optional) If this input field is present, the Memo area of the PerfectMoney payment form is pre-filled in with its value. At most, 100 characters can be entered into the memo field. (The customer is free to edit the memo, so its content should not be relied upon to stay unchanged.) 
-          # SUGGESTED_MEMO
+          mapping :suggested_memo, 'SUGGESTED_MEMO'
 
           #(Optional) If this input field is present and not empty (for example its value is 1), user can not edit memo field during payment process. 
-          # SUGGESTED_MEMO_NOCHANGE
+          mapping :suggested_memo_nochange, 'SUGGESTED_MEMO_NOCHANGE'
           
           #(Optional) If this input field is present, the PerfectMoney account number from which the payment will be made is fixed to this number and cannot be edited/changed by the customer. Use it if you must be paid from a certain account number. Account numbers can range from 1 to 9 decimal digits.
           mapping :payer_account, 'FORCED_PAYER_ACCOUNT'

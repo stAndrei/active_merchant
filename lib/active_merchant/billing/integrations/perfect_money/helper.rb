@@ -27,7 +27,7 @@ module ActiveMerchant #:nodoc:
           # Payment status is submitted as an HTML form if the URL is specified as the value of the STATUS_URL field. The form is submitted to the URL with the POST method by the PerfectMoney server upon successful completion of an PerfectMoney payment. Thus, the target URL would normally be that of a cgi program or other form processor. This URL can specify a secure protocol such as https. An example value for having the payment status sent as a form is:
           # ”https://www.shop.com/orderpayment.asp”
           # The only legal URL types are “mailto:”, “http://”, and “https://”. Non-standard port numbers are not supported.
-          # STATUS_URL
+          mapping :status_url, 'STATUS_URL'
           
           #The URL to which a form is submitted or to which a hypertext link is taken by the buyer’s browser upon successful PerfectMoney® payment to the merchant. This is the buyer’s normal return path into the merchant’s shopping cart system. This URL can specify a secure protocol such as https. By default, this URL is assumed to be a target for a form POST operation, however other actions are possible when the optional PAYMENT_URL_METHOD field is specified (see below).
           mapping :success_url, 'PAYMENT_URL'

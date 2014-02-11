@@ -30,7 +30,7 @@ module ActiveMerchant #:nodoc:
           alias_method :hash, :V2_HASH
 
           def acknowledge
-            hash == Digest::MD5.hexdigest(generate_signature_string)
+            hash == Digest::MD5.hexdigest(generate_signature_string).upcase
           end
 
           #PAYMENT_ID:PAYEE_ACCOUNT:PAYMENT_AMOUNT:PAYMENT_UNITS:PAYMENT_BATCH_NUM:PAYER_ACCOUNT:AlternateMerchantPassphraseHash:TIMESTAMPGMT

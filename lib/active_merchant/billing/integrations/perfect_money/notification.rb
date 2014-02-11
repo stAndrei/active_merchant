@@ -4,7 +4,7 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module PerfectMoney
         class Notification < ActiveMerchant::Billing::Integrations::Notification
-          
+
           %w(
             PAYEE_ACCOUNT
             PAYMENT_AMOUNT
@@ -30,9 +30,9 @@ module ActiveMerchant #:nodoc:
           alias_method :hash, :V2_HASH
 
           def acknowledge
-            hash == generate_signature
+            hash == Digest::MD5.hexdigest(generate_signature_string)
           end
-          
+
           #PAYMENT_ID:PAYEE_ACCOUNT:PAYMENT_AMOUNT:PAYMENT_UNITS:PAYMENT_BATCH_NUM:PAYER_ACCOUNT:AlternateMerchantPassphraseHash:TIMESTAMPGMT
 
           def generate_signature_string
@@ -43,12 +43,9 @@ module ActiveMerchant #:nodoc:
                 currency,
                 payment_batch_num,
                 payer_account,
+                Digest::MD5.hexdigest(@options[:secret]).upcase,
                 time
               ].join ':'
-          end
-
-          def generate_signature
-            Digest::MD5.hexdigest(generate_signature_string)
           end
 
         end

@@ -16,7 +16,7 @@ class RemoteMerchantWarriorTest < Test::Unit::TestCase
     )
 
     @options = {
-      :address => {
+      :billing_address => {
         :name => 'Longbob Longsen',
         :country => 'AU',
         :state => 'Queensland',
@@ -24,7 +24,7 @@ class RemoteMerchantWarriorTest < Test::Unit::TestCase
         :address1 => '123 test st',
         :zip => '4000'
       },
-      :transaction_product => 'TestProduct'
+      :description => 'TestProduct'
     }
   end
 

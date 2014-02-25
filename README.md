@@ -1,6 +1,6 @@
 # Active Merchant
-[![Build Status](https://secure.travis-ci.org/Shopify/active_merchant.png)](http://travis-ci.org/Shopify/active_merchant)
-[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/Shopify/active_merchant)
+[![Build Status](https://travis-ci.org/Shopify/active_merchant.png?branch=master)](https://travis-ci.org/Shopify/active_merchant)
+[![Code Climate](https://codeclimate.com/github/Shopify/active_merchant.png)](https://codeclimate.com/github/Shopify/active_merchant)
 
 Active Merchant is an extraction from the e-commerce system [Shopify](http://www.shopify.com).
 Shopify's requirements for a simple and unified API to access dozens of different payment
@@ -94,6 +94,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [Braintree](http://www.braintreepaymentsolutions.com) - US, CA, AU, AD, AT, BE, BG, CY, CZ, DK, EE, FI, FR, GI, DE, GR, HU, IS, IM, IE, IT, LV, LI, LT, LU, MT, MC, NL, NO, PL, PT, RO, SM, SK, SI, ES, SE, CH, TR, GB
 * [CardSave](http://www.cardsave.net/) - GB
 * [CardStream](http://www.cardstream.com/) - GB
+* [Cecabank](http://www.ceca.es/es/) - ES
 * [CertoDirect](http://www.certodirect.com/) - BE, BG, CZ, DK, DE, EE, IE, EL, ES, FR, IT, CY, LV, LT, LU, HU, MT, NL, AT, PL, PT, RO, SI, SK, FI, SE, GB
 * [Conekta](https://conekta.io) - MX
 * [CyberSource](http://www.cybersource.com) - US, BR, CA, CN, DK, FI, FR, DE, JP, MX, NO, SE, GB, SG
@@ -120,6 +121,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [JetPay](http://www.jetpay.com/) - US
 * [LinkPoint](http://www.linkpoint.com/) - US
 * [Litle & Co.](http://www.litle.com/) - US
+* [maxiPago!](http://www.maxipago.com/) - BR
 * [Merchant e-Solutions](http://www.merchante-solutions.com/) - US
 * [Merchant One Gateway](http://merchantone.com/) - US
 * [MerchantWARE](http://merchantwarehouse.com/merchantware) - US
@@ -138,6 +140,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [NETPAY Gateway](http://www.netpay.com.mx) - MX
 * [NMI](http://nmi.com/) - US
 * [Ogone](http://www.ogone.com/) - BE, DE, FR, NL, AT, CH
+* [Openpay](Openpay) - MX
 * [Optimal Payments](http://www.optimalpayments.com/) - CA, US, GB
 * [Orbital Paymentech](http://chasepaymentech.com/) - US, CA
 * [PayGate PayXML](http://paygate.co.za/) - US, ZA
@@ -154,6 +157,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [PayPal Payments Pro (UK)](https://www.paypal.com/uk/webapps/mpp/pro) - GB
 * [PayPal Website Payments Pro (CA)](https://www.paypal.com/cgi-bin/webscr?cmd=_wp-pro-overview-outside) - CA
 * [PayPal Express Checkout for Digital Goods](https://www.x.com/community/ppx/xspaces/digital_goods) - AU, CA, CN, FI, GB, ID, IN, IT, MY, NO, NZ, PH, PL, SE, SG, TH, VN
+* [Payscout](http://www.payscout.com/) - US
 * [Paystation](http://paystation.co.nz) - NZ
 * [Pay Way](http://www.payway.com.au) - AU
 * [Pin](http://www.pin.net.au/) - AU
@@ -174,6 +178,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [SecurePay](http://www.securepay.com/) - US, CA, GB, AU
 * [SecurePayTech](http://www.securepaytech.com/) - NZ
 * [SkipJack](http://www.skipjack.com/) - US, CA
+* [SoEasyPay](http://www.soeasypay.com/) - US, CA, AT, BE, BG, HR, CY, CZ, DK, EE, FI, FR, DE, GR, HU, IE, IT, LV, LT, LU, MT, NL, PL, PT, RO, SK, SI, ES, SE, GB, IS, NO, CH
 * [Spreedly](https://spreedly.com) - AD, AE, AT, AU, BD, BE, BG, BN, CA, CH, CY, CZ, DE, DK, EE, EG, ES, FI, FR, GB, GI, GR, HK, HU, ID, IE, IL, IM, IN, IS, IT, JO, KW, LB, LI, LK, LT, LU, LV, MC, MT, MU, MV, MX, MY, NL, NO, NZ, OM, PH, PL, PT, QA, RO, SA, SE, SG, SI, SK, SM, TR, TT, UM, US, VA, VN, ZA
 * [Stripe](https://stripe.com/) - US, CA, GB, AU, IE, FR, NL, BE, DE, ES
 * [Swipe](https://www.swipehq.com/checkout) - CA, NZ
@@ -199,6 +204,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [DirecPay](http://www.timesofmoney.com/direcpay/jsp/home.jsp)
 * [Direct-eBanking / sofortueberweisung.de by Payment-Networks AG](https://www.payment-network.com/deb_com_en/merchantarea/home) - DE, AT, CH, BE, UK, NL
 * [Dotpay](http://dotpay.pl)
+* [Doku](http://doku.com)
 * [Dwolla](https://www.dwolla.com/default.aspx)
 * [ePay](http://www.epay.dk/epay-payment-solutions/)
 * [Fasapay](https://fasapay.com/) - ID

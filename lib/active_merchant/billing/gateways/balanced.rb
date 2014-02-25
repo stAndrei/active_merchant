@@ -131,7 +131,7 @@ module ActiveMerchant #:nodoc:
         post = {}
         post[:amount] = money
         post[:description] = options[:description]
-        post[:appears_on_statement_as] = options[:appears_on_statement_as] if options[:appears_on_statement_as]
+        add_common_params(post, options)
 
         create_or_find_account(post, options)
         add_credit_card(post, credit_card, options)
@@ -161,6 +161,12 @@ module ActiveMerchant #:nodoc:
       #   purchase.
       # * <tt>account_uri</tt> -- `account_uri` is the URI of an existing
       #   Balanced account.
+      #
+      # If you are passing a new card URI from balanced.js, you should pass
+      # the customer's name
+      #
+      # * <tt>name</tt> -- the customer's name, to appear on the Account
+      #   on Balanced.
       def purchase(money, credit_card, options = {})
         if credit_card.respond_to?('number')
           requires!(options, :email) unless options[:account_uri]
@@ -169,7 +175,7 @@ module ActiveMerchant #:nodoc:
         post = {}
         post[:amount] = money
         post[:description] = options[:description]
-        post[:appears_on_statement_as] = options[:appears_on_statement_as] if options[:appears_on_statement_as]
+        add_common_params(post, options)
 
         create_or_find_account(post, options)
         add_credit_card(post, credit_card, options)
@@ -199,8 +205,7 @@ module ActiveMerchant #:nodoc:
         post[:hold_uri] = authorization
         post[:amount] = money if money
         post[:description] = options[:description] if options[:description]
-        post[:appears_on_statement_as] = options[:appears_on_statement_as] if options[:appears_on_statement_as]
-        post[:on_behalf_of_uri] = options[:on_behalf_of_uri] if options[:on_behalf_of_uri]
+        add_common_params(post, options)
 
         create_transaction(:post, @debits_uri, post)
       rescue Error => ex
@@ -216,7 +221,7 @@ module ActiveMerchant #:nodoc:
       def void(authorization, options = {})
         post = {}
         post[:is_void] = true
-        post[:appears_on_statement_as] = options[:appears_on_statement_as] if options[:appears_on_statement_as]
+        add_common_params(post, options)
 
         create_transaction(:put, authorization, post)
       rescue Error => ex
@@ -250,7 +255,7 @@ module ActiveMerchant #:nodoc:
         post[:debit_uri] = debit_uri
         post[:amount] = amount
         post[:description] = options[:description]
-        post[:appears_on_statement_as] = options[:appears_on_statement_as] if options[:appears_on_statement_as]
+        add_common_params(post, options)
         create_transaction(:post, @refunds_uri, post)
       rescue Error => ex
         failed_response(ex.response)
@@ -310,7 +315,9 @@ module ActiveMerchant #:nodoc:
         end
 
         if account_uri == nil
+          post[:name] = options[:name] if options[:name]
           post[:email_address] = options[:email]
+          post[:meta] = options[:meta] if options[:meta]
 
           # create an account
           response = http_request(:post, @accounts_uri, post)
@@ -340,6 +347,15 @@ module ActiveMerchant #:nodoc:
         end
       end
 
+      def add_common_params(post, options)
+        common_params = [
+          :appears_on_statement_as,
+          :on_behalf_of_uri,
+          :meta
+        ]
+        post.update(options.select{|key, _| common_params.include?(key)})
+      end
+
       def add_credit_card(post, credit_card, options)
         if credit_card.respond_to? :number
           card = {}
@@ -361,6 +377,7 @@ module ActiveMerchant #:nodoc:
 
           post[:card_uri] = card_uri
         elsif credit_card.kind_of?(String)
+          associate_card_to_account(post[:account_uri], credit_card) unless options[:account_uri]
           post[:card_uri] = credit_card
         end
 

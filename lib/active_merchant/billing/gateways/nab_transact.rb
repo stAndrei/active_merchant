@@ -127,11 +127,13 @@ module ActiveMerchant #:nodoc:
         xml.tag! 'purchaseOrderNo', order_id
         xml.tag! 'preauthID', preauth_id
 
+        add_metadata(xml, options)
+
         xml.target!
       end
 
       #Generate payment request XML
-      # - API is set to allow multiple Txn's but currentlu only allows one
+      # - API is set to allow multiple Txn's but currently only allows one
       # - txnSource = 23 - (XML)
       def build_request(action, body)
         xml = Builder::XmlMarkup.new

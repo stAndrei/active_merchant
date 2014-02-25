@@ -50,6 +50,23 @@ class RemoteBalancedTest < Test::Unit::TestCase
     assert_equal "Homer Electric", response.params['appears_on_statement_as']
   end
 
+  def test_passing_customer_name
+    options = @options.merge(name: 'Test User')
+    options[:email] = 'john.buyer+withname@example.org'
+    assert response = @gateway.purchase(@amount, @credit_card, options)
+
+    assert_success response
+    assert_equal options[:name], response.params['account']['name']
+  end
+
+  def test_passing_meta
+    options = @options.merge(meta: { "order_number" => '12345' })
+    assert response = @gateway.purchase(@amount, @credit_card, options)
+
+    assert_success response
+    assert_equal options[:meta], response.params['meta']
+  end
+
   def test_authorize_and_capture
     amount = @amount
     assert auth = @gateway.authorize(amount, @credit_card, @options)
@@ -77,7 +94,6 @@ class RemoteBalancedTest < Test::Unit::TestCase
   def test_failed_capture
     assert response = @gateway.capture(@amount, '')
     assert_failure response
-    assert response.message.index('Missing required field') != nil
   end
 
   def test_void_authorization
@@ -107,10 +123,10 @@ class RemoteBalancedTest < Test::Unit::TestCase
 
   def test_store
     new_email_address = '%d@example.org' % Time.now
-    assert card_uri = @gateway.store(@credit_card, {
+    store = @gateway.store(@credit_card, {
         :email => new_email_address
     })
-    assert_instance_of String, card_uri
+    assert_success store
   end
 
   def test_invalid_login

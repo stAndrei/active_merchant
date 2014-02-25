@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/orbital/orbital_soft_descriptors'
 require File.dirname(__FILE__) + '/orbital/avs_result'
+require File.dirname(__FILE__) + '/orbital/cvv_result'
 require "rexml/document"
 
 module ActiveMerchant #:nodoc:
@@ -40,7 +41,27 @@ module ActiveMerchant #:nodoc:
         "Interface-Version" => "Ruby|ActiveMerchant|Proprietary Gateway"
       }
 
-      SUCCESS, APPROVED = '0', '00'
+      SUCCESS = '0'
+
+      APPROVED = [
+        '00', # Approved
+        '08', # Approved authorization, honor with ID
+        '11', # Approved authorization, VIP approval
+        '24', # Validated
+        '26', # Pre-noted
+        '27', # No reason to decline
+        '28', # Received and stored
+        '29', # Provided authorization
+        '31', # Request received
+        '32', # BIN alert
+        '34', # Approved for partial
+        '91', # Approved low fraud
+        '92', # Approved medium fraud
+        '93', # Approved high fraud
+        '94', # Approved fraud service unavailable
+        'E7', # Stored
+        'PA'  # Partial approval
+      ]
 
       class_attribute :secondary_test_url, :secondary_live_url
 
@@ -439,7 +460,7 @@ module ActiveMerchant #:nodoc:
              :authorization => authorization_string(response[:tx_ref_num], response[:order_id]),
              :test => self.test?,
              :avs_result => OrbitalGateway::AVSResult.new(response[:avs_resp_code]),
-             :cvv_result => response[:cvv2_resp_code]
+             :cvv_result => OrbitalGateway::CVVResult.new(response[:cvv2_resp_code])
           }
         )
       end
@@ -459,7 +480,7 @@ module ActiveMerchant #:nodoc:
           response[:profile_proc_status] == SUCCESS
         else
           response[:proc_status] == SUCCESS &&
-          response[:resp_code] == APPROVED
+          APPROVED.include?(response[:resp_code])
         end
       end
 

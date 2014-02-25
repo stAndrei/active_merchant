@@ -30,11 +30,25 @@ class StripeTest < Test::Unit::TestCase
   def test_successful_new_card
     @gateway.expects(:ssl_request).returns(successful_new_card_response)
 
-    assert response = @gateway.store(@credit_card, @options.merge(:customer => 'cus_3sgheFxeBgTQ3M'))
+    assert response = @gateway.store(@credit_card, :customer => 'cus_3sgheFxeBgTQ3M')
     assert_instance_of MultiResponse, response
     assert_success response
 
     assert_equal 'card_483etw4er9fg4vF3sQdrt3FG', response.authorization
+    assert response.test?
+  end
+
+  def test_successful_new_card_and_customer_update
+    @gateway.expects(:ssl_request).twice.returns(successful_new_card_response, successful_new_customer_response)
+
+    assert response = @gateway.store(@credit_card, :customer => 'cus_3sgheFxeBgTQ3M', :email => 'test@test.com')
+    assert_instance_of MultiResponse, response
+    assert_success response
+
+    assert_equal 'card_483etw4er9fg4vF3sQdrt3FG', response.authorization
+    assert_equal 2, response.responses.size
+    assert_equal 'card_483etw4er9fg4vF3sQdrt3FG', response.responses[0].authorization
+    assert_equal 'cus_3sgheFxeBgTQ3M', response.responses[1].authorization
     assert response.test?
   end
 
@@ -123,6 +137,15 @@ class StripeTest < Test::Unit::TestCase
 
     assert response = @gateway.refund(@refund_amount, 'ch_test_charge')
     assert_failure response
+  end
+
+  def test_successful_refund_with_refund_application_fee
+    @gateway.expects(:ssl_request).with do |method, url, post, headers|
+      assert post.include?("refund_application_fee=true")
+    end.returns(successful_partially_refunded_response)
+
+    assert response = @gateway.refund(@refund_amount, 'ch_test_charge', :refund_application_fee => true)
+    assert_success response
   end
 
   def test_successful_refund_with_refund_fee_amount
@@ -261,6 +284,7 @@ class StripeTest < Test::Unit::TestCase
       assert_match(/external_id=42/, data)
       assert_match(/referrer=http\%3A\%2F\%2Fwww\.shopify\.com/, data)
       assert_match(/payment_user_agent=Stripe\%2Fv1\+ActiveMerchantBindings\%2F\d+\.\d+\.\d+/, data)
+      assert_match(/metadata\[email\]=foo\%40wonderfullyfakedomain\.com/, data)
     end.respond_with(successful_purchase_response)
   end
 
@@ -301,6 +325,15 @@ class StripeTest < Test::Unit::TestCase
     @gateway.purchase(@amount, @credit_card, @options.merge(:version => '2013-10-29'))
   end
 
+  def test_initialize_gateway_with_version
+    @gateway = StripeGateway.new(:login => 'login', :version => '2013-12-03')
+    @gateway.expects(:ssl_request).once.with {|method, url, post, headers|
+      headers && headers['Stripe-Version'] == '2013-12-03'
+    }.returns(successful_purchase_response)
+
+    @gateway.purchase(@amount, @credit_card, @options)
+  end
+
   def test_track_data_and_traditional_should_be_mutually_exclusive
     stub_comms(@gateway, :ssl_request) do
       @gateway.purchase(@amount, @credit_card, @options)
@@ -328,6 +361,26 @@ class StripeTest < Test::Unit::TestCase
 
   def generate_options_should_allow_key
     assert_equal({:key => '12345'}, generate_options({:key => '12345'}))
+  end
+
+  def test_passing_expand_parameters
+    @gateway.expects(:ssl_request).with do |method, url, post, headers|
+      assert post.include?("expand[]=balance_transaction")
+    end.returns(successful_authorization_response)
+
+    @options.merge!(:expand => :balance_transaction)
+
+    @gateway.authorize(@amount, @credit_card, @options)
+  end
+
+  def test_passing_expand_parameters_as_array
+    @gateway.expects(:ssl_request).with do |method, url, post, headers|
+      assert post.include?("expand[]=balance_transaction&expand[]=customer")
+    end.returns(successful_authorization_response)
+
+    @options.merge!(:expand => [:balance_transaction, :customer])
+
+    @gateway.authorize(@amount, @credit_card, @options)
   end
 
   private

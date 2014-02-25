@@ -24,17 +24,8 @@ class RemoteStripeTest < Test::Unit::TestCase
     assert_success response
     assert_equal "charge", response.params["object"]
     assert response.params["paid"]
-  end
-
-  def test_purchase_description
-    assert response = @gateway.purchase(@amount, @credit_card, { :currency => @currency, :description => "TheDescription", :email => "email@example.com" })
-    assert_equal "TheDescription", response.params["description"], "Use the description if it's specified."
-
-    assert response = @gateway.purchase(@amount, @credit_card, { :currency => @currency, :email => "email@example.com" })
-    assert_equal "email@example.com", response.params["description"], "Use the email if no description is specified."
-
-    assert response = @gateway.purchase(@amount, @credit_card, { :currency => @currency })
-    assert_nil response.params["description"], "No description or email specified."
+    assert_equal "ActiveMerchant Test Purchase", response.params["description"]
+    assert_equal "wow@example.com", response.params["metadata"]["email"]
   end
 
   def test_unsuccessful_purchase
@@ -47,6 +38,8 @@ class RemoteStripeTest < Test::Unit::TestCase
     assert authorization = @gateway.authorize(@amount, @credit_card, @options)
     assert_success authorization
     assert !authorization.params["captured"]
+    assert_equal "ActiveMerchant Test Purchase", authorization.params["description"]
+    assert_equal "wow@example.com", authorization.params["metadata"]["email"]
 
     assert capture = @gateway.capture(@amount, authorization.authorization)
     assert_success capture
@@ -98,6 +91,25 @@ class RemoteStripeTest < Test::Unit::TestCase
     first_card = response.params["cards"]["data"].first
     assert_equal response.params["default_card"], first_card["id"]
     assert_equal @credit_card.last_digits, first_card["last4"]
+  end
+
+  def test_successful_store_with_existing_customer
+    assert response = @gateway.store(@credit_card, {:currency => @currency, :description => "Active Merchant Test Customer"})
+    assert_success response
+
+    assert response = @gateway.store(@new_credit_card, {:customer => response.params['id'], :currency => @currency, :description => "Active Merchant Test Customer", :email => "email@example.com"})
+    assert_success response
+    assert_equal 2, response.responses.size
+
+    card_response = response.responses[0]
+    assert_equal "card", card_response.params["object"]
+    assert_equal @new_credit_card.last_digits, card_response.params["last4"]
+
+    customer_response = response.responses[1]
+    assert_equal "customer", customer_response.params["object"]
+    assert_equal "Active Merchant Test Customer", customer_response.params["description"]
+    assert_equal "email@example.com", customer_response.params["email"]
+    assert_equal 2, customer_response.params["cards"]["count"]
   end
 
   def test_successful_update
@@ -177,7 +189,7 @@ class RemoteStripeTest < Test::Unit::TestCase
     assert response.params['fee_details'], 'This test will only work if your gateway login is a Stripe Connect access_token.'
     assert refund = @gateway.refund(@amount, response.authorization, :refund_application_fee => true)
     assert_success refund
-    assert_equal 12, refund.params["fee_details"].first["amount_refunded"]
+    assert_equal 0, refund.params["fee"]
   end
 
   def test_refund_partial_application_fee
@@ -192,5 +204,12 @@ class RemoteStripeTest < Test::Unit::TestCase
     assert_success response
     assert_equal "charge", response.params["object"]
     assert response.params["paid"]
+  end
+
+  def test_expanding_objects
+    assert response = @gateway.purchase(@amount, @credit_card, @options.merge(:expand => 'balance_transaction'))
+    assert_success response
+    assert response.params['balance_transaction'].is_a?(Hash)
+    assert_equal 'balance_transaction', response.params['balance_transaction']['object']
   end
 end

@@ -85,7 +85,7 @@ module ActiveMerchant #:nodoc:
               return false
             end
 
-            signature == hash
+            signature == hash && status == 'completed'
           end
         end
       end

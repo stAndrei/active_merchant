@@ -2,8 +2,7 @@
 	"folders":
 	[
 		{
-			"follow_symlinks": true,
-			"path": "/Users/linadmax/GitHub/active_merchant"
+			"path": "lib/active_merchant"
 		}
 	]
 }

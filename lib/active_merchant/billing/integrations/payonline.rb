@@ -6,7 +6,7 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module Payonline
         mattr_accessor :service_url
-        locale = I18n.locale == 'ru' ? 'ru' : 'en'
+        locale = I18n.locale == :ru ? 'ru' : 'en'
         self.service_url = "https://secure.payonlinesystem.com/#{locale}/payment/"
 
         mattr_accessor :signature_parameter_name

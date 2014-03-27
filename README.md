@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/Shopify/active_merchant.png?branch=master)](https://travis-ci.org/Shopify/active_merchant)
 [![Code Climate](https://codeclimate.com/github/Shopify/active_merchant.png)](https://codeclimate.com/github/Shopify/active_merchant)
 
-Active Merchant is an extraction from the e-commerce system [Shopify](http://www.shopify.com).
+Active Merchant is an extraction from the ecommerce system [Shopify](http://www.shopify.com).
 Shopify's requirements for a simple and unified API to access dozens of different payment
 gateways with very different internal APIs was the chief principle in designing the library.
 
@@ -40,39 +40,41 @@ Or, if you're using Bundler, just add the following to your Gemfile:
 This simple example demonstrates how a purchase can be made using a person's
 credit card details.
 
-    require 'rubygems'
-    require 'active_merchant'
+```ruby
+require 'rubygems'
+require 'active_merchant'
 
-    # Use the TrustCommerce test servers
-    ActiveMerchant::Billing::Base.mode = :test
+# Use the TrustCommerce test servers
+ActiveMerchant::Billing::Base.mode = :test
 
-    gateway = ActiveMerchant::Billing::TrustCommerceGateway.new(
-                :login => 'TestMerchant',
-                :password => 'password')
+gateway = ActiveMerchant::Billing::TrustCommerceGateway.new(
+            :login => 'TestMerchant',
+            :password => 'password')
 
-    # ActiveMerchant accepts all amounts as Integer values in cents
-    amount = 1000  # $10.00
+# ActiveMerchant accepts all amounts as Integer values in cents
+amount = 1000  # $10.00
 
-    # The card verification value is also known as CVV2, CVC2, or CID
-    credit_card = ActiveMerchant::Billing::CreditCard.new(
-                    :first_name         => 'Bob',
-                    :last_name          => 'Bobsen',
-                    :number             => '4242424242424242',
-                    :month              => '8',
-                    :year               => Time.now.year+1,
-                    :verification_value => '000')
+# The card verification value is also known as CVV2, CVC2, or CID
+credit_card = ActiveMerchant::Billing::CreditCard.new(
+                :first_name         => 'Bob',
+                :last_name          => 'Bobsen',
+                :number             => '4242424242424242',
+                :month              => '8',
+                :year               => Time.now.year+1,
+                :verification_value => '000')
 
-    # Validating the card automatically detects the card type
-    if credit_card.valid?
-      # Capture $10 from the credit card
-      response = gateway.purchase(amount, credit_card)
+# Validating the card automatically detects the card type
+if credit_card.valid?
+  # Capture $10 from the credit card
+  response = gateway.purchase(amount, credit_card)
 
-      if response.success?
-        puts "Successfully charged $#{sprintf("%.2f", amount / 100)} to the credit card #{credit_card.display_number}"
-      else
-        raise StandardError, response.message
-      end
-    end
+  if response.success?
+    puts "Successfully charged $#{sprintf("%.2f", amount / 100)} to the credit card #{credit_card.display_number}"
+  else
+    raise StandardError, response.message
+  end
+end
+```
 
 For more in-depth documentation and tutorials, see [GettingStarted.md](GettingStarted.md) and the
 [API documentation](http://rubydoc.info/github/Shopify/active_merchant/master/file/README.md).
@@ -83,7 +85,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 
 * [App55](https://www.app55.com/) - AU, BR, CA, CH, CL, CN, CO, CZ, DK, EU, GB, HK, HU, ID, IS, JP, KE, KR, MX, MY, NO, NZ, PH, PL, TH, TW, US, VN, ZA
 * [Authorize.Net CIM](http://www.authorize.net/) - US
-* [Authorize.Net](http://www.authorize.net/) - US, CA, GB
+* [Authorize.Net](http://www.authorize.net/) - AD, AT, AU, BE, BG, CA, CH, CY, CZ, DE, DK, ES, FI, FR, GB, GB, GI, GR, HU, IE, IT, LI, LU, MC, MT, NL, NO, PL, PT, RO, SE, SI, SK, SM, TR, US, VA
 * [Balanced](https://www.balancedpayments.com/) - US
 * [Banwire](http://www.banwire.com/) - MX
 * [Barclays ePDQ Extra Plus](http://www.barclaycard.co.uk/business/accepting-payments/epdq-ecomm/) - GB
@@ -111,6 +113,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [Finansbank WebPOS](https://www.fbwebpos.com/) - US, TR
 * [First Pay](http://www.first-pay.com) - US
 * [FirstData Global Gateway e4](http://www.firstdata.com) - CA, US
+* [FirstGiving](http://www.firstgiving.com/) - US
 * [Garanti Sanal POS](https://sanalposweb.garanti.com.tr) - US, TR
 * [HDFC](http://www.hdfcbank.com/sme/sme-details/merchant-services/guzh6m0i) - IN
 * [IATSPayments](http://www.iatspayments.com/) - US, CA, GB
@@ -191,6 +194,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [ViaKLIX](http://viaklix.com) - US
 * [Vindicia](http://www.vindicia.com/) - US, CA, GB, AU, MX, BR, DE, KR, CN, HK
 * [WebPay](https://webpay.jp/) - JP
+* [WePay](https://www.wepay.com/) - US
 * [Wirecard](http://www.wirecard.com) - AD, CY, GI, IM, MT, RO, CH, AT, DK, GR, IT, MC, SM, TR, BE, EE, HU, LV, NL, SK, GB, BG, FI, IS, LI, NO, SI, VA, FR, IL, LT, PL, ES, CZ, DE, IE, LU, PT, SE
 * [WorldPay](http://www.worldpay.com/) - HK, US, GB, AU, AD, BE, CH, CY, CZ, DE, DK, ES, FI, FR, GI, GR, HU, IE, IL, IT, LI, LU, MC, MT, NL, NO, NZ, PL, PT, SE, SG, SI, SM, TR, UM, VA
 

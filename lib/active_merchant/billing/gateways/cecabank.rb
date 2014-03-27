@@ -98,9 +98,13 @@ module ActiveMerchant #:nodoc:
 
       def add_creditcard(post, creditcard)
         post['PAN'] = creditcard.number
-        post['Caducidad'] = "#{creditcard.year}#{creditcard.month}"
+        post['Caducidad'] = expdate(creditcard)
         post['CVV2'] = creditcard.verification_value
         post['Pago_elegido'] = CECA_MODE
+      end
+
+      def expdate(creditcard)
+        "#{format(creditcard.year, :four_digits)}#{format(creditcard.month, :two_digits)}"
       end
 
       def parse(body)
@@ -109,30 +113,24 @@ module ActiveMerchant #:nodoc:
         root = REXML::Document.new(body).root
 
         response[:success] = (root.attributes['valor'] == "OK")
-
-        #common params to all responses
         response[:date] = root.attributes['fecha']
         response[:operation_number] = root.attributes['numeroOperacion']
         response[:message] = root.attributes['valor']
 
-        #success
         if root.elements['OPERACION']
           response[:operation_type] = root.elements['OPERACION'].attributes['tipo']
           response[:amount] =  root.elements['OPERACION/importe'].text.strip
         end
 
-        #optional params
         response[:description] = root.elements['OPERACION/descripcion'].text if root.elements['OPERACION/descripcion']
         response[:authorization_number] = root.elements['OPERACION/numeroAutorizacion'].text if root.elements['OPERACION/numeroAutorizacion']
         response[:reference] = root.elements['OPERACION/referencia'].text if root.elements['OPERACION/referencia']
         response[:pan] = root.elements['OPERACION/pan'].text if root.elements['OPERACION/pan']
 
         if root.elements['ERROR']
-          #error
           response[:error_code] = root.elements['ERROR/codigo'].text
           response[:error_message] = root.elements['ERROR/descripcion'].text
         else
-          #authorization
           if("000" == root.elements['OPERACION'].attributes['numeroOperacion'])
             if(root.elements['OPERACION/numeroAutorizacion'])
               response[:authorization] = root.elements['OPERACION/numeroAutorizacion'].text
@@ -142,6 +140,12 @@ module ActiveMerchant #:nodoc:
           end
         end
 
+        return response
+
+      rescue REXML::ParseException => e
+        response[:success] = false
+        response[:message] = "Unable to parse the response."
+        response[:error_message] = e.message
         response
       end
 

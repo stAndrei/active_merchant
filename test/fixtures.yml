@@ -166,6 +166,11 @@ firstdata_e4:
   login:
   password:
 
+first_giving:
+  application_key: ''
+  security_token:  ''
+  charity_id: "1234"
+
 garanti:
   login: "PROVAUT"
   terminal_id: 111995
@@ -690,6 +695,12 @@ webpay:
   login: "test_secret_eHn4TTgsGguBcW764a2KA8Yd"
 
 # Working test credentials, no need to replace
+wepay:
+  client_id: "187493"
+  account_id: "1311201206"
+  access_token: "STAGE_4c6a319f9b6ef50e596ee3ea0b845f2fecd50fa0d8bc0b7483bd61c2018dbf5c"
+
+# Working test credentials, no need to replace
 wirecard:
   login: 56500
   password: TestXAPTER
@@ -709,3 +720,6 @@ wirecard_checkout_page:
   secret: B8AKTPWBRMNBV455FG6M2DANE99WU2
   shop_id: ''
   paymenttype: IDL
+
+mollie_ideal:
+  api_key: 'test_8isBjQoJXJoiXRSzjhwKPO1Bo9AkVA'

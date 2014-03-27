@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class CecabankTest < Test::Unit::TestCase
+  include CommStub
+
   def setup
     @gateway = CecabankGateway.new(
       :merchant_id  => '12345678',
@@ -26,6 +28,24 @@ class CecabankTest < Test::Unit::TestCase
     assert_success response
     assert_equal '12345678901234567890|202215722', response.authorization
     assert response.test?
+  end
+
+  def test_invalid_xml_response_handling
+    @gateway.expects(:ssl_post).returns(invalid_xml_purchase_response)
+
+    assert response = @gateway.purchase(@amount, @credit_card, @options)
+    assert_instance_of Response, response
+    assert_failure response
+    assert_match(/Unable to parse the response/, response.message)
+    assert_match(/No close tag for/, response.params['error_message'])
+  end
+
+  def test_expiration_date_sent_correctly
+    response = stub_comms do
+      @gateway.purchase(@amount, credit_card("4242424242424242", month: 1, year: 2014), @options)
+    end.check_request do |endpoint, data, headers|
+      assert_match(/Caducidad=201401&/, data, "Expected expiration date format is yyyymm")
+    end.respond_with(successful_purchase_response)
   end
 
   def test_unsuccessful_request
@@ -79,6 +99,14 @@ class CecabankTest < Test::Unit::TestCase
     <descripcion><![CDATA[ERROR. Formato CVV2/CVC2 no valido.]]></descripcion>
   </ERROR>
 </TRANSACCION>
+    RESPONSE
+  end
+
+  def invalid_xml_purchase_response
+    <<-RESPONSE
+<br>
+<TRANSACCION valor="OK" numeroOperacion="202215722" fecha="22/01/2014 13:15:32">
+Invalid unparsable xml in the response
     RESPONSE
   end
 

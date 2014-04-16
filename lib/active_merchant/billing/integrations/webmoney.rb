@@ -13,7 +13,8 @@ module ActiveMerchant #:nodoc:
         self.test_url = "https://merchant.webmoney.ru/lmi/payment.asp"
 
         mattr_accessor :production_url
-        self.production_url =  "https://merchant.webmoney.ru/lmi/payment.asp"
+        domain = I18n.locale == :ru ? 'ru' : 'com'
+        self.production_url =  "https://merchant.webmoney.#{domain}/lmi/payment.asp"
 
         mattr_accessor :signature_parameter_name
         self.signature_parameter_name = 'LMI_HASH'

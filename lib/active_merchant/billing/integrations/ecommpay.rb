@@ -8,9 +8,6 @@ module ActiveMerchant #:nodoc:
         mattr_accessor :service_url
         self.service_url = 'https://terminal-sandbox.ecommpay.com/'
 
-        mattr_accessor :signature
-        self.signature = 'signature'
-
         def self.helper(order, account, options = {})
           Helper.new(order, account, options)
         end

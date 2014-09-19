@@ -7,52 +7,37 @@ module ActiveMerchant #:nodoc:
         class Notification < ActiveMerchant::Billing::Integrations::Notification
 
           %w(
-            fp_paidto
-            fp_paidby
-            fp_amnt
-            fp_fee_amnt
-            fp_currency
-            fp_batchnumber
-            fp_item
-            fp_store
-            fp_timestamp
-            fp_merchant_ref
-            fp_hash
+            payment_type_id
+            transaction_id
+            external_id
+            site_id
+            order_description
+            currency
+            real_amount
+            real_currency
+            language
+            type
+            signature
           ).each do |param_name|
             define_method(param_name.underscore){ params[param_name] }
           end
 
-          alias_method :account, :fp_paidto
-          alias_method :payer, :fp_paidby
-          alias_method :amount, :fp_amnt
-          alias_method :fee_amount, :fp_fee_amnt
-          alias_method :currency, :fp_currency
-          alias_method :description, :fp_item
-          alias_method :account_name, :fp_store
-          alias_method :received_at, :fp_timestamp
-          alias_method :order, :fp_merchant_ref
-          alias_method :item_id, :fp_merchant_ref
-          alias_method :number, :fp_batchnumber
-          alias_method :hash, :fp_hash
+          alias_method :order, :external_id
+
+          def amount
+            params['amount'].to_i / 100.0
+          end
 
           def acknowledge
-            hash == generate_signature
+            signature == generate_signature
           end
 
           def generate_signature_string
-            string = [
-                account,
-                payer,
-                account_name,
-                amount,
-                number,
-                currency,
-                @options[:secret]
-              ].join ':'
+            params.map{|k, v| "#{k}:#{v}" }.sort.push(@options[:secret]).join(';')
           end
 
           def generate_signature
-            Digest::SHA256.hexdigest(generate_signature_string).downcase
+            Digest::SHA1.hexdigest(generate_signature_string)
           end
 
         end

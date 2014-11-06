@@ -7,7 +7,7 @@ module ActiveMerchant #:nodoc:
         class Notification < ActiveMerchant::Billing::Integrations::Notification
 
           def order_id
-            params['ok_txn_id']
+            params['ok_invoice']
           end
 
           def amount

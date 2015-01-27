@@ -6,7 +6,7 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module Ecommpay
         mattr_accessor :service_url
-        self.service_url = 'https://terminal-sandbox.ecommpay.com/'
+        self.service_url = 'https://terminal.ecommpay.com/'
 
         def self.helper(order, account, options = {})
           Helper.new(order, account, options)

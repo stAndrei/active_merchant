@@ -9,7 +9,7 @@ module ActiveMerchant #:nodoc:
         # self.service_url = 'http://tgw.bfopay.com/payindex'
 
         mattr_accessor :service_url
-        self.service_url = 'http://gw.bfopay.com/payindex'
+        self.service_url = 'https://gw.bfopay.com/payindex'
 
         mattr_accessor :signature_parameter_name
         self.signature_parameter_name = 'Md5Sign'

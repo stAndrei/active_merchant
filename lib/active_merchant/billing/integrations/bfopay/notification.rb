@@ -25,7 +25,7 @@ module ActiveMerchant #:nodoc:
           alias_method :order, :trans_id
 
           def acknowledge
-            hash == generate_signature
+            md5_sign == generate_signature
           end
 
           def generate_signature_string
@@ -39,7 +39,6 @@ module ActiveMerchant #:nodoc:
               FactMoney
               AdditionalInfo
               SuccTime
-              Md5Sign
             ).map{|key| "#{key}=#{params[key]}" }.join('~|~') + "~|~Md5Sign=#{@options[:secret]}"
           end
 

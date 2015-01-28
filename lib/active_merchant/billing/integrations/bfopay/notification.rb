@@ -46,6 +46,10 @@ module ActiveMerchant #:nodoc:
             Digest::MD5.hexdigest(generate_signature_string).downcase
           end
 
+          def amount
+            fact_money.to_f * 0.01
+          end
+
         end
       end
     end

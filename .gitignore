@@ -6,6 +6,7 @@ pkg
 Gemfile.lock
 Gemfile*.lock
 .rbx/
+.DS_Store
 
 #Sublime files
 *.sublime-*

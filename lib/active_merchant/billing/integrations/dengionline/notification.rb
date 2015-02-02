@@ -49,12 +49,20 @@ module ActiveMerchant #:nodoc:
             @secret = value.to_s
           end
 
+          def status
+            if payment_id == '0'
+              'pending'
+            else
+              'completed'
+            end
+          end
+
           def generate_signature
             Digest::MD5.hexdigest [gross, nickname, payment_id, secret].join
           end
 
           def acknowledged?
-            verification_hash == generate_signature
+            verification_hash == generate_signature && status == 'completed'
           end
           alias_method :acknowledge, :acknowledged?
 

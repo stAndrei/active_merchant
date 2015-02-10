@@ -3,9 +3,9 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module W1
         class Helper < ActiveMerchant::Billing::Integrations::Helper
-          def initialize(order, account, options = {})
-            @md5secret = options.delete(:secret)
 
+          def initialize(order, account, options = {})
+            @md5_secret = options.delete(:secret)
             super
           end
 
@@ -16,29 +16,13 @@ module ActiveMerchant #:nodoc:
           end
 
           def generate_signature_string
-            #main_params = [:account, :amount, :order, :currency].map {|key| @fields[mappings[key]]}
-            #main_params.sort
-            #[main_params, @md5secret].flatten.join
             fields = @fields.clone
             fields.delete(ActiveMerchant::Billing::Integrations::W1.signature_parameter_name)
-            fields = fields.sort
-            values = fields.map {|key,val| val}
-            signature_string = [values, @md5secret].flatten.join
-            encode_string(signature_string, "cp1251")
+            (fields.sort.map(&:last) << @md5_secret).join.encode!('UTF-8', 'cp1251')
           end
 
           def generate_signature
             Digest::MD5.base64digest(generate_signature_string)
-          end
-
-          def encode_string(data,enc='cp1251')
-            if data.respond_to?(:encode!)
-              data.encode!('UTF-8', enc)
-            else    # for ruby 1.8
-              require 'iconv'
-              data = Iconv.new('utf-8', enc).iconv(data)
-            end
-            data
           end
 
           # Replace with the real mapping

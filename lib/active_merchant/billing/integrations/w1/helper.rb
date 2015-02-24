@@ -18,6 +18,7 @@ module ActiveMerchant #:nodoc:
           def generate_signature_string
             fields = @fields.clone
             fields.delete(ActiveMerchant::Billing::Integrations::W1.signature_parameter_name)
+            #throw [(fields.sort.map(&:last) << @md5_secret).join.encode!('UTF-8', 'cp1251'), fields.sort.map(&:first)]
             (fields.sort.map(&:last) << @md5_secret).join.encode!('UTF-8', 'cp1251')
           end
 

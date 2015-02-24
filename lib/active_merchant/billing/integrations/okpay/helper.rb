@@ -8,7 +8,7 @@ module ActiveMerchant #:nodoc:
           mapping :currency, 'ok_currency'
           mapping :order, 'ok_invoice'
           mapping :description, 'ok_item_1_name'
-          mapping :pay_method, 'ok_payment_methods'
+          mapping :pay_method, 'ok_direct_payment'
         end
       end
     end

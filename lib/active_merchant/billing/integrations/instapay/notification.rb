@@ -63,11 +63,11 @@ module ActiveMerchant #:nodoc:
           end
 
           def generate_signature
-            Digest::MD5.base64digest(generate_signature_string)
+            Digest::SHA1.base64digest(generate_signature_string)
           end
 
           def acknowledge
-            true #security_key == generate_signature
+            security_key == generate_signature
           end
 
           def success_response(*args)

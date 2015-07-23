@@ -5,13 +5,34 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module Epayservice
         class Notification < ActiveMerchant::Billing::Integrations::Notification
-          
-          def complete?
-            true
-          end 
+              %w(
+                  eps_request 
+                  eps_trid 
+                  eps_accnum 
+                  eps_company 
+                  eps_guid 
+                  eps_amount 
+                  eps_currency 
+                  eps_description
+                  eps_sign
+                ).each do |param_name|
+                define_method(param_name){ params[param_name.upcase] }
+              end
+
+          alias_method :amount, :eps_amount
+          alias_method :hash, :eps_sign
 
           def acknowledge
-            true
+            hash == generate_signature
+          end
+
+
+          def generate_signature_string
+            amount + eps_guid + @options[:secret]
+          end
+
+          def generate_signature
+            Digest::MD5.hexdigest(generate_signature_string).downcase
           end
           
         end

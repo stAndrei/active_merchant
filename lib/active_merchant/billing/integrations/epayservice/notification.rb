@@ -20,10 +20,9 @@ module ActiveMerchant #:nodoc:
               end
 
           alias_method :amount, :eps_amount
-          alias_method :hash, :check_key
 
           def acknowledge
-            hash == generate_signature
+            params["check_key"] == generate_signature
           end
 
 

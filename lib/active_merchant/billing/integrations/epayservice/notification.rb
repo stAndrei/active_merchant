@@ -5,8 +5,7 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module Epayservice
         class Notification < ActiveMerchant::Billing::Integrations::Notification
-              %w(
-                  eps_request 
+              %w( eps_request 
                   eps_trid 
                   eps_accnum 
                   eps_company 
@@ -14,7 +13,7 @@ module ActiveMerchant #:nodoc:
                   eps_amount 
                   eps_currency 
                   eps_description
-                  check_key
+                  eps_result
                 ).each do |param_name|
                 define_method(param_name){ params[param_name.upcase] }
               end
@@ -22,9 +21,20 @@ module ActiveMerchant #:nodoc:
           alias_method :amount, :eps_amount
 
           def acknowledge
-            params["check_key"] == generate_signature
+            result && hash
           end
 
+          def pending
+            eps_result == nil && hash
+          end
+
+          def result
+            eps_result == 'done'
+          end
+
+          def hash
+            params["check_key"] == generate_signature
+          end
 
           def generate_signature_string
             amount + eps_guid + @options[:secret]

@@ -14,13 +14,13 @@ module ActiveMerchant #:nodoc:
                   eps_amount 
                   eps_currency 
                   eps_description
-                  eps_sign
+                  check_key
                 ).each do |param_name|
                 define_method(param_name){ params[param_name.upcase] }
               end
 
           alias_method :amount, :eps_amount
-          alias_method :hash, :eps_sign
+          alias_method :hash, :check_key
 
           def acknowledge
             hash == generate_signature

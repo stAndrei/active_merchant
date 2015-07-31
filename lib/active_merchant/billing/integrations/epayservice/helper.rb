@@ -11,7 +11,7 @@ module ActiveMerchant #:nodoc:
               
 
           mapping :merchantnumber, 'EPS_GUID'
-          mapping :account, 'account'
+          mapping :payment_id, 'payment_id'
           mapping :amount, 'EPS_AMOUNT'
           mapping :description, 'EPS_DESCRIPTION'
         

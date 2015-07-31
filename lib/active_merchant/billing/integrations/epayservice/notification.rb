@@ -14,6 +14,7 @@ module ActiveMerchant #:nodoc:
                   eps_currency 
                   eps_description
                   eps_result
+                  eps_sign
                 ).each do |param_name|
                 define_method(param_name){ params[param_name.upcase] }
               end
@@ -33,7 +34,7 @@ module ActiveMerchant #:nodoc:
           end
 
           def hash
-            params["check_key"] == generate_signature
+            eps_sign == generate_signature
           end
 
           def generate_signature_string

@@ -17,6 +17,7 @@ module ActiveMerchant #:nodoc:
           mapping :credential2, 'serviceName'
           mapping :credential3, 'successUrl'
           mapping :credential4, 'failUrl'
+          mapping :language, 'language'
         end
       end
     end

@@ -17,6 +17,7 @@ module ActiveMerchant #:nodoc:
             userName
             userEmail
             paymentData
+            language
             secretKey
             hash
           ).each do |param_name|

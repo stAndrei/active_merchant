@@ -36,6 +36,8 @@ module ActiveMerchant #:nodoc:
             case payment_status
             when '3'
               'pending'
+            when '4'
+              'canceled'
             when '5'
               'completed'
             else 'unknown'

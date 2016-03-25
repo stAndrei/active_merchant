@@ -29,7 +29,7 @@ module ActiveMerchant #:nodoc:
           end
 
           alias_method :action, :action
-          alias_method :currency_amount, :order_sum_amount
+          alias_method :amount, :order_sum_amount
           alias_method :currency_code, :order_sum_currency_paycash
           alias_method :currency_bank, :order_sum_bank_paycash
           alias_method :shop_id, :shop_id
@@ -45,12 +45,8 @@ module ActiveMerchant #:nodoc:
             end
           end
 
-          def amount
-            currency_amount
-          end
-
           def generate_signature
-            string = [action, currency_amount, currency_code, currency_bank, shop_id, yandex_transaction_id, customer_number, @options[:secret]].join(';')
+            string = [action, amount, currency_code, currency_bank, shop_id, yandex_transaction_id, customer_number, @options[:secret]].join(';')
             Digest::MD5.hexdigest(string).upcase
           end
 

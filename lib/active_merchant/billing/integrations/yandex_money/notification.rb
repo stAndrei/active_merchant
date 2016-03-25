@@ -37,7 +37,7 @@ module ActiveMerchant #:nodoc:
           alias_method :customer_number, :customer_number
 
           def status
-            case action
+            case @options[:yandex_money_action]
               when 'paymentAviso' then 'completed'
               when 'checkOrder' then 'pending'
               when 'cancelOrder' then 'canceled'
@@ -46,7 +46,7 @@ module ActiveMerchant #:nodoc:
           end
 
           def generate_signature
-            string = [action, amount, currency_code, currency_bank, shop_id, yandex_transaction_id, customer_number, @options[:secret]].join(';')
+            string = [@options[:yandex_money_action], amount, currency_code, currency_bank, shop_id, yandex_transaction_id, customer_number, @options[:secret]].join(';')
             Digest::MD5.hexdigest(string).upcase
           end
 

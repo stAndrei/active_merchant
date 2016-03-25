@@ -21,6 +21,13 @@ module ActiveMerchant #:nodoc:
           mapping :shop_sum_bank_paycash, 'shopSumBankPaycash'
           mapping :payment_payer_code, 'paymentPayerCode'
           mapping :payment_type, 'paymentType'
+          mapping :amount, 'sum'
+          mapping :scid, 'scid'
+          mapping :user_id, 'customerNumber'
+          mapping :payment_id, 'orderNumber'
+          mapping :payment_type, 'paymentType'
+          mapping :fail_url, 'shopFailURL'
+          mapping :succes_url, 'shopSuccessURL'
 
         end
       end

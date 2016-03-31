@@ -7,7 +7,7 @@ module ActiveMerchant #:nodoc:
       module YandexMoney
 
         mattr_accessor :service_url
-        self.service_url = 'https://demomoney.yandex.ru/eshop.xml'
+        self.service_url = 'https://money.yandex.ru/eshop.xml'
 
         def self.helper(order, account, options = {})
           Helper.new(order, account, options)

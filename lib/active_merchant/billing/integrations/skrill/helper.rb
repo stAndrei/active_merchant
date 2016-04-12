@@ -4,8 +4,14 @@ module ActiveMerchant #:nodoc:
       module Skrill
         class Helper < ActiveMerchant::Billing::Integrations::Helper
 
-          mapping :order, 'transaction_id'
-          mapping :account, 'pay_to_email'
+          mapping :pay_to_email, 'pay_to_email'
+          mapping :amount, 'amount'
+          mapping :currency, 'currency'
+          mapping :transaction_id, 'transaction_id'
+          mapping :language, 'language'
+          mapping :detail1_description, 'detail1_description'
+          mapping :detail1_text, 'detail1_text'
+          mapping :status_url, 'status_url'
 
         end
       end

@@ -7,7 +7,7 @@ module ActiveMerchant #:nodoc:
       module Skrill
 
         mattr_accessor :service_url
-        self.service_url = 'https://www.skrill.com/app/test_payment.pl'
+        self.service_url = 'https://www.skrill.com/app/payment.pl'
 
         def self.helper(order, account, options = {})
           Helper.new(order, account, options)

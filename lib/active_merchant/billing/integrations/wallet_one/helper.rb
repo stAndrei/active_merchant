@@ -1,7 +1,7 @@
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     module Integrations #:nodoc:
-      module W1
+      module WalletOne
         class Helper < ActiveMerchant::Billing::Integrations::Helper
 
           def initialize(order, account, options = {})
@@ -11,13 +11,13 @@ module ActiveMerchant #:nodoc:
 
           def form_fields
             @md5_secret ?
-              @fields.merge(ActiveMerchant::Billing::Integrations::W1.signature_parameter_name => generate_signature) :
+              @fields.merge(ActiveMerchant::Billing::Integrations::WalletOne.signature_parameter_name => generate_signature) :
               @fields
           end
 
           def generate_signature_string
             fields = @fields.clone
-            fields.delete(ActiveMerchant::Billing::Integrations::W1.signature_parameter_name)
+            fields.delete(ActiveMerchant::Billing::Integrations::WalletOne.signature_parameter_name)
             #throw [(fields.sort.map(&:last) << @md5_secret).join.encode!('UTF-8', 'cp1251'), fields.sort.map(&:first)]
             (fields.sort.map(&:last) << @md5_secret).join.encode!('UTF-8', 'cp1251')
           end
@@ -26,7 +26,7 @@ module ActiveMerchant #:nodoc:
             Digest::MD5.base64digest(generate_signature_string)
           end
 
-          # Replace with the real mapping
+          # Replace with the real mapping 
           mapping :account, 'WMI_MERCHANT_ID'
           mapping :amount, 'WMI_PAYMENT_AMOUNT'
 

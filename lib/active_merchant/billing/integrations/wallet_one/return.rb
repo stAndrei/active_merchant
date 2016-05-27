@@ -1,7 +1,7 @@
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     module Integrations #:nodoc:
-      module W1
+      module WalletOne
         class Return < ActiveMerchant::Billing::Integrations::Return
           def success?
             status == 'Accepted'

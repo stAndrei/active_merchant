@@ -1,7 +1,9 @@
+require 'net/http'
+
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     module Integrations #:nodoc:
-      module W1
+      module WalletOne
         class Notification < ActiveMerchant::Billing::Integrations::Notification
           def self.recognizes?(params)
             params.has_key?('WMI_PAYMENT_AMOUNT') && params.has_key?('WMI_MERCHANT_ID')
@@ -32,7 +34,7 @@ module ActiveMerchant #:nodoc:
           end
 
           def security_key
-            params[ActiveMerchant::Billing::Integrations::W1.signature_parameter_name]
+            params[ActiveMerchant::Billing::Integrations::WalletOne.signature_parameter_name]
           end
 
           def currency
@@ -55,7 +57,7 @@ module ActiveMerchant #:nodoc:
           def generate_signature_string
            # [account, gross, item_id, currency, status, transaction_id, payer_wallet_id, @options[:secret]].flatten.join(':')
             data = params.clone
-            data.delete(ActiveMerchant::Billing::Integrations::W1.signature_parameter_name)
+            data.delete(ActiveMerchant::Billing::Integrations::WalletOne.signature_parameter_name)
             data = data.sort
             values = data.map {|key,val| val}
             signature_string = [values, @options[:secret]].flatten.join

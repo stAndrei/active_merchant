@@ -1,11 +1,11 @@
+require File.dirname(__FILE__) + '/wallet_one/helper.rb'
+require File.dirname(__FILE__) + '/wallet_one/notification.rb'
+require File.dirname(__FILE__) + '/wallet_one/return.rb'
+
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     module Integrations #:nodoc:
-      # Documentation: http://merchant.w1.ru/checkout/site/develope/
-      module W1
-        autoload :Helper, File.dirname(__FILE__) + '/w1/helper.rb'
-        autoload :Notification, File.dirname(__FILE__) + '/w1/notification.rb'
-        autoload :Return, File.dirname(__FILE__) + '/w1/return.rb'
+      module WalletOne
 
         mattr_accessor :service_url
         self.service_url = 'https://wl.walletone.com/checkout/checkout/Index'

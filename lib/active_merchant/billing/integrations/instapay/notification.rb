@@ -32,7 +32,7 @@ module ActiveMerchant #:nodoc:
           end
 
           def security_key
-            params[ActiveMerchant::Billing::Integrations::W1.signature_parameter_name]
+            params[ActiveMerchant::Billing::Integrations::WalletOne.signature_parameter_name]
           end
 
           def currency

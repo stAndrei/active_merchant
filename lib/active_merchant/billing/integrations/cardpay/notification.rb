@@ -13,7 +13,7 @@ module ActiveMerchant #:nodoc:
           alias_method :signature, :sha512
 
           def payment_params
-            Hash.from_xml(request_xml)["order"]
+            (Hash.from_xml(request_xml) rescue {})["order"]
           end
 
           def request_xml
@@ -46,7 +46,7 @@ module ActiveMerchant #:nodoc:
           end
 
           def acknowledge
-            signature.strip == generate_signature
+            signature.strip == generate_signature && status == 'completed'
           end
 
         end

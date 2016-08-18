@@ -46,7 +46,7 @@ module ActiveMerchant #:nodoc:
           end
 
           def acknowledge
-            signature = generate_signature
+            signature.strip == generate_signature
           end
 
         end

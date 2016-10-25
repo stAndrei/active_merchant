@@ -40,7 +40,7 @@ module ActiveMerchant #:nodoc:
           end
 
           def acknowledge
-            (generate_signature == signature) && (status == 'completed')
+            (generate_signature.strip == signature.strip) && (status == 'completed')
           end
 
         end

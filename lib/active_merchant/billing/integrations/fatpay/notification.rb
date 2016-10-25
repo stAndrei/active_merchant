@@ -35,6 +35,10 @@ module ActiveMerchant #:nodoc:
             decoded_params['reference'].to_i
           end
 
+          def amount
+            decoded_params['amount'].to_f
+          end
+
           def generate_signature
             OpenSSL::HMAC.hexdigest(OpenSSL::Digest::Digest.new('md5'), @options[:secret], encoded_params)
           end

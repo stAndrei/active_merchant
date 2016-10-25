@@ -16,7 +16,6 @@ module ActiveMerchant #:nodoc:
           alias_method :signature, :sign
 
           def status
-            decoded_params = JSON.parse(Base64.decode64(encoded_params))
             case decoded_params['status']
             when '0'
               'pending'
@@ -26,6 +25,10 @@ module ActiveMerchant #:nodoc:
               'completed'
             else 'unknown'
             end
+          end
+
+          def decoded_params
+            JSON.parse(Base64.decode64(encoded_params))
           end
 
           def payment_id

@@ -18,6 +18,10 @@ module ActiveMerchant #:nodoc:
             true
           end
 
+          def status
+            'pending'
+          end
+
         end
       end
     end

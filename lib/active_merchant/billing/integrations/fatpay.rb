@@ -6,7 +6,7 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module Fatpay
         mattr_accessor :service_url
-        self.service_url = 'https://fp.ki-technology.ru/pay'
+        self.service_url = 'https://fatpay.net/pay'
 
         def self.helper(order, account, options = {})
           Helper.new(order, account, options)

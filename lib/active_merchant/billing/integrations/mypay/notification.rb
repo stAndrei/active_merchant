@@ -7,6 +7,7 @@ module ActiveMerchant #:nodoc:
         class Notification < ActiveMerchant::Billing::Integrations::Notification
           %w(
             id
+            orderId
             account
             clientID
             currency
@@ -26,28 +27,30 @@ module ActiveMerchant #:nodoc:
             define_method(param_name.underscore){ params[param_name] }
           end
 
+          alias_method :amount, :price
+
           def acknowledge(authcode = nil)
             string = [
               account,
-              clientID,
+              client_id,
               currency,
               date,
               id,
-              orderId,
+              order_id,
               error,
-              errorMessage,
+              error_message,
               parameters,
-              paymentType,
+              payment_type,
               price,
               revenue,
-              serviceID,
+              service_id,
               status,
               timestamp,
-              unitName,
+              unit_name,
               @options[:secret]
             ].join('')
             signature = Digest::SHA1.hexdigest(string)
-            signature == hash
+            signature.upcase == hash.upcase
           end
 
         end
